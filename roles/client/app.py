@@ -7,16 +7,16 @@ sys.path.append(os.path.join(dirname, '../../'))
 
 from flask import Flask, request, jsonify
 
-from tasks.traininig.models.baseline import Baseline
+from tasks.traininig.train_round import train_round
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing
 
 # Sample data storage (in-memory)
-data_store = {}
-
-# Initalize model
-model = Baseline()
+data_store = {
+    'partition_id': partition_id,
+    'num_clients': num_clients
+}
 
 @app.route("/", methods=["GET"])
 def home():
@@ -25,9 +25,26 @@ def home():
 # Start Training
 @app.route("/start_training", methods=["POST"])
 def start_training():
+    data = request.json
+
+    batch_size = data.get('batch_size', None)
+    learning_rate = data.get('learning_rate', None)
+    num_epochs = data.get('num_epochs', None)
+    parameters = data.get('parameters', None)
+
     # Deserialize parameters
-    # Set model parameters
-    # Start training
+    parameters = ''
+
+    # Training
+    accuracy = train_round(
+        num_clients=data_store['num_clients'],
+        partition_id=data_store['partition_id'],
+        parameters=parameters,
+        batch_size=batch_size,
+        learning_rate=learning_rate,
+        num_epochs=num_epochs
+    )
+
     # Serialize parameters and send data back
     pass
 

@@ -56,14 +56,10 @@ def train_epoch(
 def train(
     model,
     dataloader,
-    num_epochs
+    num_epochs,
+    criterion: nn.Module,
+    optimizer: torch.optim.Optimizer
 ):
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(
-        params=model.parameters(),
-        lr=0.01
-    )
-    
     all_batch_losses = []
     epoch_losses = []
     epoch_accuracies = []

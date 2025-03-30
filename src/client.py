@@ -3,30 +3,36 @@ import requests
 from utils import *
 from flask import Flask, request
 
-app = Flask(__name__)
-
 port = port()
 local = local(port)
-edge = ''
 
 edge_index = sys.argv[1]
-# client_index = sys.argv[2]
+client_index = sys.argv[2]
 server = sys.argv[3]
+edge = ''
 
-# register edge
-url = f'http://{server}/register?address={local}&role=client&edge_index={edge_index}'
-requests.get(url)
+def create_app():
+    app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return 'OK'
+    with app.app_context():
+        url = f'http://{server}/register?address={local}&role=client&edge_index={edge_index}'
+        requests.get(url)
 
-@app.route('/bind')
-def bind():
-    address = request.args.get('address', None)
-    edge = address
+    @app.route('/')
+    def home():
+        return 'OK'
 
-    return 'OK'
+    @app.route('/bind')
+    def bind():
+        address = request.args.get('address', None)
+        edge = address
+
+        print(f'Edge {edge_index} Client {client_index} ready!')
+
+        return 'OK'
+
+    return app
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(host='0.0.0.0', port=port, debug=False)

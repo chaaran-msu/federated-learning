@@ -8,7 +8,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-port = 5000
+port = 5001
 local = local(port)
 
 jobs = set()
@@ -59,12 +59,13 @@ def register():
         clients[address] = edge_index
 
     if len(edges) == num_of_edges and len(clients) == num_of_clients:
-        time.sleep(5)
         for edge_address, edge_id in edges.items():
             for client_address, client_id in clients.items():
                 if edge_id == client_id:
                     url = f'http://{edge_address}/bind?address={client_address}'
                     res = requests.get(url)
+                    print(res)
+
         print("Ready!")
 
     return 'OK'

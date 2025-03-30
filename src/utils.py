@@ -22,7 +22,7 @@ def submit(time, mem, cpu, cluster, server, role, edge_index, client_index=0):
 
 source ~/.venv/fl/bin/activate
 
-srun python {'client.py' if role == 'client' else 'edge.py'} {edge_index} {client_index} {server}
+srun python {'client.py' if role == 'client' else 'edge.py'} {edge_index} {client_index} {server} > output_{'client' if role == 'client' else 'edge'}{edge_index}{client_index}.log
 """
     filename = f"{uuid.uuid4()}.sh"
     with open(filename, 'w') as file:

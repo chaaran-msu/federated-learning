@@ -4,7 +4,7 @@ from typing import List
 
 from traininig.data.create_dataloaders import create_dataloaders_flower
 from traininig.models.baseline import Baseline
-from tasks.traininig.utils.parameters import get_parameters, set_parameters
+from tasks.traininig.utils.parameters import load_serialized_parameters, get_serialized_parameters
 from traininig.utils.train import train
 from traininig.utils.test import test
 
@@ -26,8 +26,8 @@ def train_round(
     # Initialize model
     model = Baseline()
 
-    # Set model parameters
-    set_parameters(
+    # Load model parameters
+    load_serialized_parameters(
         model=model,
         parameters=parameters
     )
@@ -57,4 +57,19 @@ def train_round(
         criterion=criterion
     )
 
-    return accuracy
+    # Set model parameters
+    load_serialized_parameters(
+        model=model,
+        parameters=parameters
+    )
+
+    # Serialize model parameters
+    serialized_params = get_serialized_parameters(model)
+
+    round_data = {
+        'parameters': serialized_params,
+        'accuracy': accuracy,
+        'num_samples': len(trainloader.dataset)
+    }
+
+    return round_data

@@ -6,6 +6,7 @@ dirname = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(dirname, '../../'))
 
 from flask import Flask, request, jsonify
+import requests
 
 from tasks.traininig.train_round import train_round
 
@@ -15,7 +16,8 @@ app = Flask(__name__)
 # Sample data storage (in-memory)
 data_store = {
     'partition_id': partition_id,
-    'num_clients': num_clients
+    'num_clients': num_clients,
+    'server_address': server_address
 }
 
 @app.route("/", methods=["GET"])
@@ -32,11 +34,8 @@ def start_training():
     num_epochs = data.get('num_epochs', None)
     parameters = data.get('parameters', None)
 
-    # Deserialize parameters
-    parameters = ''
-
     # Training
-    accuracy = train_round(
+    round_data = train_round(
         num_clients=data_store['num_clients'],
         partition_id=data_store['partition_id'],
         parameters=parameters,
@@ -45,8 +44,15 @@ def start_training():
         num_epochs=num_epochs
     )
 
-    # Serialize parameters and send data back
-    pass
+    round_data['partitoin_id'] = data_store['partition_id']
+
+    server_address = data_store['server_address']
+
+    # Send data back to server
+    requests.post(
+        url=f'{server_address}/aggregate',
+        json=round_data
+    )
 
 # Stop App
 @app.route("/stop", methods=["POST"])

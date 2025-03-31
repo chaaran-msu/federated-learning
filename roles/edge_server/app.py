@@ -13,9 +13,10 @@ app = Flask(__name__)
 
 # Sample data storage (in-memory)
 data_store = {
+    'server_address': server_address,
     'clients': [], # Each client will have it's address
     'current_round_clients': [], # Client Index in 'clients' list
-    'round_parameters': {}, # Parameters for current round
+    'current_round_data': {}, # Parameters for current round
 }
 
 @app.route("/", methods=["GET"])
@@ -60,10 +61,25 @@ def start_training():
 # Aggregation
 @app.route("/aggregate", methods=["POST"])
 def aggregate():
+    data = request.json
+
     # Add model parameters to data store
+    parameters = data.get('parameters', None)
+    accuracy = data.get('accuracy', None)
+    num_samples = data.get('num_samples', None)
+    partition_id = data.get('partition_id', None)
+
+    data_store['current_round_data'][partition_id] = {
+        'parameters': parameters,
+        'accuracy': accuracy,
+        'num_samples': num_samples
+    }
+
     # If all devices have sent the data, aggregate
+    if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
+        pass
+
     # Send parameters up the hierarchy
-    pass
 
 # Stop training
 @app.route("/stop", methods=["POST"])

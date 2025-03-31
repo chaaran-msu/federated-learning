@@ -27,8 +27,6 @@ def create_app():
         address = request.args.get('address', None)
         edge = address
 
-        print(f'Edge {edge_index} Client {client_index} ready!')
-
         return 'OK'
 
     return app

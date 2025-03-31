@@ -2,6 +2,7 @@ import time
 import config
 import socket
 import requests
+import threading
 import subprocess
 from utils import *
 from flask import Flask, request
@@ -40,8 +41,39 @@ for edge_index, edge in enumerate(config.data['edges']):
         jobs.add(submit(t_time, mem, cpu, cluster, local, 'client', edge_index, client_index))
         print(f"  Client {client_index} - Mem: {mem}, CPU: {cpu}, Cluster: {cluster}")
 
-print(local)
-print(jobs)
+def on_ready():
+    # Now, we send a request to each edge to inform it of its assigned clients
+    for edge_address, edge_id in edges.items():
+        for client_address, client_id in clients.items():
+            if edge_id == client_id:  # If the edge is responsible for the client
+                # Construct the URL to inform the edge about its client
+                edge_url = f'http://{edge_address}/bind?address={client_address}'
+
+                # Send the GET request to the edge to bind the client
+                try:
+                    edge_res = requests.get(edge_url)
+                    # Check if the request was successful
+                    if edge_res.status_code == 200:
+                        print(f"Successfully bound client {client_address} to edge {edge_address}")
+                    else:
+                        print(f"Failed to bind client {client_address} to edge {edge_address}")
+                except requests.exceptions.RequestException as e:
+                    print(f"Error while trying to bind client {client_address} to edge {edge_address}: {e}")
+
+                # Construct the URL to inform the client about its assigned edge
+                client_url = f'http://{client_address}/bind?address={edge_address}'
+
+                # Send the GET request to the client to inform it of its assigned edge
+                try:
+                    client_res = requests.get(client_url)
+                    # Check if the request was successful
+                    if client_res.status_code == 200:
+                        print(f"Successfully informed client {client_address} about edge {edge_address}")
+                    else:
+                        print(f"Failed to inform client {client_address} about edge {edge_address}")
+                except requests.exceptions.RequestException as e:
+                    print(f"Error while trying to inform client {client_address} about edge {edge_address}: {e}")
+
 
 @app.route('/')
 def home():
@@ -55,20 +87,25 @@ def register():
 
     if role == 'edge':
         edges[address] = edge_index
-    else:
+    elif role == 'client':
         clients[address] = edge_index
 
     if len(edges) == num_of_edges and len(clients) == num_of_clients:
-        for edge_address, edge_id in edges.items():
-            for client_address, client_id in clients.items():
-                if edge_id == client_id:
-                    url = f'http://{edge_address}/bind?address={client_address}'
-                    res = requests.get(url)
-                    print(res)
-
+        threading.Thread(target=on_ready, daemon=True).start()
         print("Ready!")
 
     return 'OK'
+
+@app.route('/bind')
+def start():
+    for edge_address, edge_id in edges.items():
+        for client_address, client_id in clients.items():
+            if edge_id == client_id:
+                edge_url = f'http://{edge_address}/bind?address={client_address}'
+                edge_ = requests.get(edge_url)
+
+                edge_url = f'http://{edge_address}/bind?address={client_address}'
+                edge_res = requests.get(edge_url)
 
 @app.route('/kill')
 def kill():

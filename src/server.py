@@ -42,6 +42,7 @@ for edge_index, edge in enumerate(config.data['edges']):
         print(f"  Client {client_index} - Mem: {mem}, CPU: {cpu}, Cluster: {cluster}")
 
 def on_ready():
+    time.sleep(5)
     # Now, we send a request to each edge to inform it of its assigned clients
     for edge_address, edge_id in edges.items():
         for client_address, client_id in clients.items():
@@ -95,17 +96,6 @@ def register():
         print("Ready!")
 
     return 'OK'
-
-@app.route('/bind')
-def start():
-    for edge_address, edge_id in edges.items():
-        for client_address, client_id in clients.items():
-            if edge_id == client_id:
-                edge_url = f'http://{edge_address}/bind?address={client_address}'
-                edge_ = requests.get(edge_url)
-
-                edge_url = f'http://{edge_address}/bind?address={client_address}'
-                edge_res = requests.get(edge_url)
 
 @app.route('/kill')
 def kill():

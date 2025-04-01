@@ -36,7 +36,7 @@ def create_app():
             'role': 'client',
             'edge_index': edge_index
         }
-    
+
         requests.post(
             f'http://{main_server_address}/register',
             json=data
@@ -45,7 +45,7 @@ def create_app():
     @app.route("/", methods=["GET"])
     def home():
         return jsonify({"message": "Client API!"})
-    
+
     @app.route('/bind', methods=["POST"])
     def bind():
         data = request.json
@@ -53,7 +53,7 @@ def create_app():
         data_store['server_address'] = data.get('server_address', None)
         data_store['partition_id'] = data.get('partition_id', None)
         data_store['num_clients'] = data.get('num_clients', None)
-        
+
         return 'OK'
 
     # Start Training
@@ -96,4 +96,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True, host="0.0.0.0", port=port)  # Run on all interfaces
+    app.run(debug=False, host="0.0.0.0", port=port)  # Run on all interfaces

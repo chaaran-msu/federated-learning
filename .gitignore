@@ -1,3 +1,5 @@
 playground.ipynb
 __pycache__
 *.out
+*.log
+*.sh

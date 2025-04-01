@@ -16,7 +16,7 @@ from roles.utils import get_local_address, get_local_port
 from allocate_resources import allocate_resources, on_ready
 
 # Obtain the server address
-server_port = get_local_port()
+server_port = 5000
 server_address = get_local_address(server_port)
 
 app = Flask(__name__)
@@ -59,10 +59,15 @@ def register_client():
             'address': address,
             'edge_index': edge_index
         })
+    print("test:")
+    print(data_store['edges'])
+    print(data_store['clients'])
 
     if len(data_store['edges']) == num_edges and len(data_store['clients']) == num_clients:
-        threading.Thread(target=on_ready, daemon=True).start()
+        threading.Thread(target=on_ready, args=[data_store['edges'], data_store['clients']], daemon=True).start()
         print("Ready!")
+
+    return 'OK'
 
 # Aggregation
 @app.route("/aggregate", methods=["POST"])
@@ -107,4 +112,4 @@ def stop():
     return f"Successfully canceled jobs"
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=server_port)  # Run on all interfaces
+    app.run(debug=False, host="0.0.0.0", port=server_port)  # Run on all interfaces

@@ -76,7 +76,7 @@ def on_ready(edges, clients):
                             'server_address': edge_address,
                             'partition_id': client_idx,
                             'num_clients': len(clients)
-                        }   
+                        }
                     )
                     # Check if the request was successful
                     if client_res.status_code == 200:

@@ -1,10 +1,17 @@
+import os
+import sys
+
+dirname = os.path.abspath(os.path.dirname(__file__))
+
+sys.path.append(os.path.join(dirname, '../'))
+
 import torch
 from torch import nn
 from typing import List
 
 from traininig.data.create_dataloaders import create_dataloaders_flower
 from traininig.models.baseline import Baseline
-from tasks.traininig.utils.parameters import load_serialized_parameters, get_serialized_parameters
+from traininig.utils.parameters import load_serialized_parameters, get_serialized_parameters
 from traininig.utils.train import train
 from traininig.utils.test import test
 

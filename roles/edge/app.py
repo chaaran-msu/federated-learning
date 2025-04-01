@@ -38,7 +38,7 @@ def create_app():
 
         }
 
-        requests.get(
+        requests.post(
             f'http://{main_server_address}/register',
             json=data
         )
@@ -58,6 +58,8 @@ def create_app():
         data_store['clients'].append({
             'address': address,
         })
+
+        return 'OK'
 
     # Start Training
     @app.route("/start_training", methods=["POST"])
@@ -115,4 +117,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True, host="0.0.0.0", port=5000)  # Run on all interfaces
+    app.run(debug=False, host="0.0.0.0", port=port)  # Run on all interfaces

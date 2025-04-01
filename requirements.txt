@@ -1,0 +1,5 @@
+numpy
+torch
+flwr
+flwr-datasets
+Flask

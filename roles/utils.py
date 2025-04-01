@@ -23,6 +23,7 @@ def submit(time, mem, cpu, cluster, server, role, edge_index, client_index=0):
 
         source ~/.venv/fl/bin/activate
         cd ../../
+        pwd
         srun python {'./roles/client/app.py' if role == 'client' else './roles/edge/app.py'} {edge_index} {client_index} {server} > output_{'client' if role == 'client' else 'edge'}{edge_index}{client_index}.log
     """
 

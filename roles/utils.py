@@ -22,8 +22,8 @@ def submit(time, mem, cpu, cluster, server, role, edge_index, client_index=0):
         #SBATCH --constraint={cluster}
 
         source ~/.venv/fl/bin/activate
-
-        srun python {'client.py' if role == 'client' else 'edge.py'} {edge_index} {client_index} {server} > output_{'client' if role == 'client' else 'edge'}{edge_index}{client_index}.log
+        cd ../../
+        srun python {'./roles/client/app.py' if role == 'client' else './roles/edge/app.py'} {edge_index} {client_index} {server} > output_{'client' if role == 'client' else 'edge'}{edge_index}{client_index}.log
     """
 
     filename = f"{uuid.uuid4()}.sh"

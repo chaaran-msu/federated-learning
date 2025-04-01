@@ -12,7 +12,12 @@ import subprocess
 import threading
 
 from tasks.aggregation.aggregate import aggregate
+from roles.utils import get_local_address, get_local_port
 from allocate_resources import allocate_resources, on_ready
+
+# Obtain the server address
+server_port = get_local_port()
+server_address = get_local_address(server_port)
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -26,7 +31,9 @@ data_store = {
 }
 
 # Allocate resources
-jobs, num_edges, num_clients = allocate_resources()
+jobs, num_edges, num_clients = allocate_resources(
+    server_address=server_address
+)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -100,4 +107,4 @@ def stop():
     return f"Successfully canceled jobs"
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)  # Run on all interfaces
+    app.run(debug=True, host="0.0.0.0", port=server_port)  # Run on all interfaces

@@ -8,13 +8,9 @@ sys.path.append(os.path.join(dirname))
 import requests
 
 import config
-from roles.utils import submit, get_local_port, get_local_address
+from roles.utils import submit
 
-def allocate_resources():
-    # Obtain the server address
-    server_port = get_local_port()
-    server_address = get_local_address(server_port)
-
+def allocate_resources(server_address):
     # Submit jobs to allocate resources
     jobs = set()
 

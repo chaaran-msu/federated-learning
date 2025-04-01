@@ -3,12 +3,16 @@ import sys
 
 dirname = os.path.abspath(os.path.dirname(__file__))
 
+sys.path.append(os.path.join(dirname))
 sys.path.append(os.path.join(dirname, '../../'))
 
 from flask import Flask, request, jsonify
 import requests
+import subprocess
+import threading
 
 from tasks.aggregation.aggregate import aggregate
+from allocate_resources import allocate_resources, on_ready
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -16,25 +20,42 @@ app = Flask(__name__)
 # Sample data storage (in-memory)
 data_store = {
     'clients': [], # Each client will have it's address
+    'edges': [],
     'current_round_clients': [], # Client Index in 'clients' list,
     'current_round_data': {}
 }
+
+# Allocate resources
+jobs, num_edges, num_clients = allocate_resources()
 
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "Edge Server API!"})
 
 # Register Clients
-@app.route("/register_client", methods=["POST"])
+@app.route("/register", methods=["POST"])
 def register_client():
     data = request.json
 
     address = data.get('address', None)
+    role = data.get('role', None)
+    edge_index = data.get('edge_index', None)
 
     # Add client information to data store
-    data_store['clients'].append({
-        'address': address,
-    })
+    if role == 'client':
+        data_store['clients'].append({
+            'address': address,
+            'edge_index': edge_index
+        })
+    elif role == 'edge':
+        data_store['edges'].append({
+            'address': address,
+            'edge_index': edge_index
+        })
+
+    if len(data_store['edges']) == num_edges and len(data_store['clients']) == num_clients:
+        threading.Thread(target=on_ready, daemon=True).start()
+        print("Ready!")
 
 # Aggregation
 @app.route("/aggregate", methods=["POST"])
@@ -72,10 +93,11 @@ def aggregate_clients():
         requests.post(f"{client_url}/start_training", json=data)
 
 # Stop training
-@app.route("/stop", methods=["POST"])
+@app.route('/stop')
 def stop():
-    # Stop
-    pass
+    for id in jobs:
+        subprocess.run(['scancel', id])
+    return f"Successfully canceled jobs"
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)  # Run on all interfaces

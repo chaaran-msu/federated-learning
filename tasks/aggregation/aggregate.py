@@ -23,7 +23,7 @@ def aggregate(
         parameters = [deserialize_parameters(client_data['parameters']) for client_data in round_data]
 
         # Get the aggregated parameters
-        aggregated_parameters = fed_avg.aggregate(
+        total_num_samples, aggregated_parameters = fed_avg.aggregate(
             num_samples=num_samples,
             parameters=parameters,
         )
@@ -31,4 +31,4 @@ def aggregate(
     # Serialize the parameters
     serialized_parameters = serialize_parameters(aggregated_parameters)
 
-    return serialized_parameters
+    return total_num_samples, serialized_parameters

@@ -24,6 +24,8 @@ class FedeartedAveraging():
         num_samples: np.ndarray, 
         parameters: List
     ):
+        total_num_samples = np.sum(num_samples)
+
         aggregated_parameters = []
 
         for elements in zip(*parameters):
@@ -34,4 +36,4 @@ class FedeartedAveraging():
                 )
             )
 
-        return aggregated_parameters
+        return total_num_samples, aggregated_parameters

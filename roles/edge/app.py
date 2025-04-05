@@ -9,6 +9,7 @@ from flask import Flask, request, jsonify
 import requests
 
 from roles.utils import get_local_port, get_local_address
+from tasks.aggregation.aggregate import aggregate
 
 port = get_local_port()
 local_address = get_local_address(port)
@@ -16,10 +17,12 @@ local_address = get_local_address(port)
 edge_index = sys.argv[1]
 client_index = sys.argv[2]
 main_server_address = sys.argv[3]
+device_id = sys.argv[4]
 
 # Sample data storage (in-memory)
 data_store = {
-    'server_address': None,
+    'id': device_id,
+    'server_address': main_server_address,
     'clients': [], # Each client will have it's address
     'current_round_clients': [], # Client Index in 'clients' list
     'current_round_data': {}, # Parameters for current round
@@ -35,7 +38,6 @@ def create_app():
             'address': local_address,
             'role': 'edge',
             'edge_index': edge_index
-
         }
 
         requests.post(
@@ -46,16 +48,19 @@ def create_app():
     @app.route("/", methods=["GET"])
     def home():
         return jsonify({"message": "Edge Server API!"})
+    
 
     # Register Clients
     @app.route("/register_client", methods=["POST"])
     def register_client():
         data = request.json
 
+        id = data.get('id', None)
         address = data.get('address', None)
 
         # Add client information to data store
         data_store['clients'].append({
+            'id': id,
             'address': address,
         })
 
@@ -84,9 +89,11 @@ def create_app():
             # Ask the client to start training
             requests.post(f"{client_url}/start_training", json=data)
 
+        return 'OK'
+
     # Aggregation
     @app.route("/aggregate", methods=["POST"])
-    def aggregate():
+    def aggregate_clients():
         data = request.json
 
         # Add model parameters to data store
@@ -101,11 +108,15 @@ def create_app():
             'num_samples': num_samples
         }
 
-        # If all devices have sent the data, aggregate
+        # If all clients in this round have sent the data
         if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
-            pass
+            # Aggregate parameters from all clients
+            serialized_parameters = aggregate(data_store['current_round_data'])
 
-        # Send parameters up the hierarchy
+            # Send parameters up the hierarchy        
+            requests.post(f"{data_store['server_address']}/aggregate", json=data)
+
+        return 'OK'
 
     # Stop training
     @app.route("/stop", methods=["POST"])

@@ -29,6 +29,6 @@ def aggregate(
         )
 
     # Serialize the parameters
-    serialize_parameters = serialize_parameters(aggregated_parameters)
+    serialized_parameters = serialize_parameters(aggregated_parameters)
 
-    return serialize_parameters
+    return serialized_parameters

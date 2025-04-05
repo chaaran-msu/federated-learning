@@ -44,6 +44,7 @@ def home():
 def register_client():
     data = request.json
 
+    id = data.get('id', None)
     address = data.get('address', None)
     role = data.get('role', None)
     edge_index = data.get('edge_index', None)
@@ -51,14 +52,17 @@ def register_client():
     # Add client information to data store
     if role == 'client':
         data_store['clients'].append({
+            'id': id,
             'address': address,
             'edge_index': edge_index
         })
     elif role == 'edge':
         data_store['edges'].append({
+            'id': id,
             'address': address,
             'edge_index': edge_index
         })
+
     print("test:")
     print(data_store['edges'])
     print(data_store['clients'])
@@ -88,21 +92,23 @@ def aggregate_clients():
 
     # If all devices have sent the data, aggregate
     if len(data_store['current_round_parameters']) == len(data_store['current_round_clients']):
-        aggregate(data_store['current_round_data'])
+        serialized_parameters = aggregate(data_store['current_round_data'])
 
-    # Start Training for next round
-    for client_idx in data_store['current_round_clients']:
-        client_url = data_store['clients'][client_idx]['address']
+        # Start Training for next round
+        for client_idx in data_store['current_round_clients']:
+            client_url = data_store['clients'][client_idx]['address']
 
-        data = {
-            'batch_size': batch_size,
-            'learning_rate': learning_rate,
-            'num_epochs': num_epochs,
-            'parameters': parameters
-        }
+            data = {
+                'batch_size': 16,
+                'learning_rate': 0.1,
+                'num_epochs': 1,
+                'parameters': serialized_parameters
+            }
 
-        # Ask the client to start training
-        requests.post(f"{client_url}/start_training", json=data)
+            # Ask the client to start training
+            requests.post(f"{client_url}/start_training", json=data)
+
+    return 'OK'
 
 # Stop training
 @app.route('/stop')

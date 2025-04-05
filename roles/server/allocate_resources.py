@@ -39,9 +39,11 @@ def allocate_resources(server_address):
 def on_ready(edges, clients):
     # Now, we send a request to each edge to inform it of its assigned clients
     for edge in edges:
+        edge_id = edge['id']
         edge_address = edge['address']
 
         for client_idx, client in enumerate(clients):
+            client_id = client['id']
             client_address = client['address']
 
             if edge['edge_index'] == client['edge_index']:  # If the edge is responsible for the client
@@ -53,6 +55,7 @@ def on_ready(edges, clients):
                     edge_res = requests.post(
                         edge_url,
                         json={
+                            'id': client_id,
                             'address': client_address
                         }
                     )
@@ -73,6 +76,7 @@ def on_ready(edges, clients):
                     client_res = requests.post(
                         client_url,
                         json={
+                            'server_id': edge_id,
                             'server_address': edge_address,
                             'partition_id': client_idx,
                             'num_clients': len(clients)

@@ -12,6 +12,8 @@ def get_local_address(port):
     return local
 
 def submit(time, mem, cpu, cluster, server, role, edge_index, client_index=0):
+    device_id = uuid.uuid4()
+
     script = f"""#!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --time={time}
@@ -23,9 +25,9 @@ def submit(time, mem, cpu, cluster, server, role, edge_index, client_index=0):
 source ~/.venv/fl/bin/activate
 cd ../../
 pwd
-srun python {'roles/client/app.py' if role == 'client' else 'roles/edge/app.py'} {edge_index} {client_index} {server} > output_{'client' if role == 'client' else 'edge'}{edge_index}{client_index}.log"""
+srun python {'roles/client/app.py' if role == 'client' else 'roles/edge/app.py'} {edge_index} {client_index} {server} {device_id}> output_{'client' if role == 'client' else 'edge'}{edge_index}{client_index}.log"""
 
-    filename = f"{uuid.uuid4()}.sh"
+    filename = f"{device_id}.sh"
     with open(filename, 'w') as file:
         file.write(script)
 

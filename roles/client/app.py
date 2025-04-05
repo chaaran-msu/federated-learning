@@ -17,11 +17,14 @@ local_address = get_local_address(port)
 edge_index = sys.argv[1]
 client_index = sys.argv[2]
 main_server_address = sys.argv[3]
+device_id = sys.argv[4]
 
 # Sample data storage (in-memory)
 data_store = {
+    'id': device_id,
     'partition_id': None,
     'num_clients': None,
+    'server_id': None,
     'server_address': None
 }
 
@@ -32,6 +35,7 @@ def create_app():
     with app.app_context():
         # Register with the main server
         data = {
+            'id': device_id,
             'address': local_address,
             'role': 'client',
             'edge_index': edge_index
@@ -50,6 +54,7 @@ def create_app():
     def bind():
         data = request.json
 
+        data_store['server_id'] = data.get('server_id', None)
         data_store['server_address'] = data.get('server_address', None)
         data_store['partition_id'] = data.get('partition_id', None)
         data_store['num_clients'] = data.get('num_clients', None)

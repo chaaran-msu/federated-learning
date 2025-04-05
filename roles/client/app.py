@@ -81,7 +81,7 @@ def create_app():
             num_epochs=num_epochs
         )
 
-        round_data['partitoin_id'] = data_store['partition_id']
+        round_data['id'] = data_store['id']
 
         server_address = data_store['server_address']
 

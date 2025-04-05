@@ -97,12 +97,12 @@ def create_app():
         data = request.json
 
         # Add model parameters to data store
+        device_id = data.get('id', None)
         parameters = data.get('parameters', None)
         accuracy = data.get('accuracy', None)
         num_samples = data.get('num_samples', None)
-        partition_id = data.get('partition_id', None)
 
-        data_store['current_round_data'][partition_id] = {
+        data_store['current_round_data'][device_id] = {
             'parameters': parameters,
             'accuracy': accuracy,
             'num_samples': num_samples
@@ -111,7 +111,13 @@ def create_app():
         # If all clients in this round have sent the data
         if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
             # Aggregate parameters from all clients
-            serialized_parameters = aggregate(data_store['current_round_data'])
+            total_num_samples, aggregated_parameters = aggregate(data_store['current_round_data'])
+
+            data = {
+                'id': data_store['id'],
+                'num_samples': total_num_samples,
+                'parameters': aggregated_parameters
+            }
 
             # Send parameters up the hierarchy        
             requests.post(f"{data_store['server_address']}/aggregate", json=data)

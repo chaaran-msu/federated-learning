@@ -79,12 +79,12 @@ def aggregate_clients():
     data = request.json
 
     # Add model parameters to data store
+    device_id = data.get('id', None)
     parameters = data.get('parameters', None)
     accuracy = data.get('accuracy', None)
     num_samples = data.get('num_samples', None)
-    partition_id = data.get('partition_id', None)
-
-    data_store['current_round_data'][partition_id] = {
+    
+    data_store['current_round_data'][device_id] = {
         'parameters': parameters,
         'accuracy': accuracy,
         'num_samples': num_samples
@@ -92,7 +92,7 @@ def aggregate_clients():
 
     # If all devices have sent the data, aggregate
     if len(data_store['current_round_parameters']) == len(data_store['current_round_clients']):
-        serialized_parameters = aggregate(data_store['current_round_data'])
+        total_num_samples, aggregated_parameters = aggregate(data_store['current_round_data'])
 
         # Start Training for next round
         for client_idx in data_store['current_round_clients']:
@@ -102,7 +102,7 @@ def aggregate_clients():
                 'batch_size': 16,
                 'learning_rate': 0.1,
                 'num_epochs': 1,
-                'parameters': serialized_parameters
+                'parameters': aggregated_parameters
             }
 
             # Ask the client to start training

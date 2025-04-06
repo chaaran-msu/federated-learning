@@ -88,6 +88,8 @@ def create_app():
         data_store['current_round_clients'] = data_store['clients']
 
         # Start Training signal for clients
+        print('Starting training from edge')
+        
         threading.Thread(
             target=start_training_edge,
             args=[

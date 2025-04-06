@@ -65,6 +65,8 @@ def create_app():
             'address': address,
         })
 
+        print(data_store['clients'])
+
         return 'OK'
 
     # Start Training
@@ -89,7 +91,7 @@ def create_app():
 
         # Start Training signal for clients
         print('Starting training from edge')
-        
+
         threading.Thread(
             target=start_training_edge,
             args=[

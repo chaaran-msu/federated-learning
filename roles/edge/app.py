@@ -139,7 +139,8 @@ def create_app():
                 args=[
                     data_store['current_round_data'],
                     data_store['server_address'],
-                    data_store['id']
+                    data_store['id'],
+                    logger
                 ]
             )
             thread.start()

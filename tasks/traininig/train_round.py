@@ -119,12 +119,14 @@ def train_round_client(
 def train_round_edge(
     round_data,
     server_address,
-    device_id
+    device_id,
+    logger
 ):
     # Aggregate parameters from all clients
     total_num_samples, aggregated_parameters = aggregate(
         round_data=round_data,
-        algorithm='fed_avg'
+        algorithm='fed_avg',
+        logger=logger
     )
 
     print('Aggregated parameters in edge server')

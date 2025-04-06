@@ -17,6 +17,7 @@ fed_avg = FedeartedAveraging()
 def aggregate(
     round_data,
     algorithm: str,
+    logger
 ):
     if algorithm == 'fed_avg':
         num_samples = np.array([round_data[device_id]['num_samples'] for device_id in round_data])
@@ -26,6 +27,7 @@ def aggregate(
         total_num_samples, aggregated_parameters = fed_avg.aggregate(
             num_samples=num_samples,
             parameters=parameters,
+            logger=logger
         )
 
     # Serialize the parameters

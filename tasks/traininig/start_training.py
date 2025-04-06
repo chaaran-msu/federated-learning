@@ -37,7 +37,7 @@ def start_training_server(
         }
 
         # Ask the client to start training
-        requests.post(f"{client_address}/start_training", json=data)
+        requests.post(f"http://{client_address}/start_training", json=data)
 
     print('Sent signal to clients to start training from server')
 
@@ -46,9 +46,9 @@ def start_training_edge(
     training_data
 ):
     for client in round_clients:
-        client_url = client['address']
+        client_address = client['address']
 
         # Ask the client to start training
-        requests.post(f"{client_url}/start_training", json=training_data)
+        requests.post(f"http://{client_address}/start_training", json=training_data)
 
     print('Sent signal to clients to start training from edge server')

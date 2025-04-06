@@ -111,7 +111,7 @@ def train_round_client(
 
     # Send data back to server
     requests.post(
-        url=f'{server_address}/aggregate',
+        url=f'http://{server_address}/aggregate',
         json=round_data
     )
 
@@ -134,7 +134,7 @@ def train_round_edge(
     }
 
     # Send parameters up the hierarchy        
-    requests.post(f"{server_address}/aggregate", json=data)
+    requests.post(f"http://{server_address}/aggregate", json=data)
 
     print('Sent to aggregation from edge server to main server')
 

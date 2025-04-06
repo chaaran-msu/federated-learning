@@ -11,9 +11,10 @@ import requests
 import subprocess
 import threading
 
-from tasks.aggregation.aggregate import aggregate
 from roles.utils import get_local_address, get_local_port
-from allocate_resources import allocate_resources, on_ready
+from allocate_resources import allocate_resources
+from communication import bind_clients_edges
+from tasks.traininig.train_round import train_round_server
 
 # Obtain the server address
 server_port = get_local_port()
@@ -68,7 +69,7 @@ def register_client():
     print(data_store['clients'])
 
     if len(data_store['edges']) == num_edges and len(data_store['clients']) == num_clients:
-        threading.Thread(target=on_ready, args=[data_store['edges'], data_store['clients']], daemon=True).start()
+        threading.Thread(target=bind_clients_edges, args=[data_store['edges'], data_store['clients']], daemon=True).start()
         print("Ready!")
 
     return 'OK'
@@ -90,23 +91,15 @@ def aggregate_clients():
         'num_samples': num_samples
     }
 
-    # If all devices have sent the data, aggregate
-    if len(data_store['current_round_parameters']) == len(data_store['current_round_clients']):
-        total_num_samples, aggregated_parameters = aggregate(data_store['current_round_data'])
-
-        # Start Training for next round
-        for client_idx in data_store['current_round_clients']:
-            client_url = data_store['clients'][client_idx]['address']
-
-            data = {
-                'batch_size': 16,
-                'learning_rate': 0.1,
-                'num_epochs': 1,
-                'parameters': aggregated_parameters
-            }
-
-            # Ask the client to start training
-            requests.post(f"{client_url}/start_training", json=data)
+    # If all devices have sent the data, aggregate and start next round
+    if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
+        threading.Thread(
+            target=train_round_server,
+            args=[
+                data_store['current_round_data'],
+                data['current_round_clients']
+            ]
+        )
 
     return 'OK'
 

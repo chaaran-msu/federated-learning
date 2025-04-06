@@ -35,7 +35,7 @@ def create_app():
     # CORS(app)  # Enable Cross-Origin Resource Sharing
 
     logger = get_logger(
-        log_dir=os.path.join(dirname, '../'),
+        log_dir=os.path.join(dirname, '../log'),
         device_id=device_id,
         role='client'
     )

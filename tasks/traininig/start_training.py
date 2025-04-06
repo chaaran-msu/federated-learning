@@ -43,12 +43,14 @@ def start_training_server(
 
 def start_training_edge(
     round_clients,
-    training_data
+    training_data,
+    logger
 ):
     for client in round_clients:
+        logger.info(f'Sending info to {client}')
         client_address = client['address']
 
         # Ask the client to start training
         requests.post(f"http://{client_address}/start_training", json=training_data)
 
-    print('Sent signal to clients to start training from edge server')
+    logger.info('Sent signal to clients to start training from edge server')

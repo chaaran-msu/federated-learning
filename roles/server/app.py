@@ -29,7 +29,7 @@ app = Flask(__name__)
 
 # Create a custom logger
 logger = get_logger(
-    log_dir=os.path.join(dirname, '../'),
+    log_dir=os.path.join(dirname, '../logs'),
     device_id=server_id,
     role='server'
 )

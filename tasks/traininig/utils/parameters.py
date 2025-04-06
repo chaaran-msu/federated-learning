@@ -4,6 +4,7 @@ from typing import List
 import numpy as np
 import torch
 import io
+import base64
 
 def set_parameters(
     model: nn.Module, 
@@ -33,6 +34,7 @@ def serialize_parameters(
     buffer = io.BytesIO()
     np.savez_compressed(buffer, *params_list)  # Compress to reduce size
     serialized_params = buffer.getvalue()
+    serialized_params = base64.b64encode(serialized_params).decode('utf-8')
 
     return serialized_params
 
@@ -47,7 +49,8 @@ def get_serialized_parameters(
 def deserialize_parameters(
     serialized_params,
 ):
-    buffer = io.BytesIO(serialized_params)
+    binary_data = base64.b64decode(serialized_params)
+    buffer = io.BytesIO(binary_data)
     params_list = np.load(buffer)
 
     return params_list

@@ -27,12 +27,11 @@ class FedeartedAveraging():
         parameters: List,
         logger
     ):
-        total_num_samples = np.sum(num_samples)
+        total_num_samples = int(np.sum(num_samples))
 
         aggregated_parameters = []
 
         for elements in zip(*parameters):
-            logger.info(elements)
             aggregated_parameters.append(
                 self.weighted_average(
                     weights=num_samples, 

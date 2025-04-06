@@ -102,7 +102,7 @@ def create_app():
         logger.info('Starting training from edge')
         logger.info(data_store['current_round_clients'])
 
-        threading.Thread(
+        thread = threading.Thread(
             target=start_training_edge,
             args=[
                 data_store['current_round_clients'],
@@ -110,6 +110,7 @@ def create_app():
                 logger
             ]
         )
+        thread.start()
 
         return 'OK'
 

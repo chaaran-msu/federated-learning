@@ -117,12 +117,15 @@ def train_round_client(
     print('Sent to edge server for aggregation from client')
 
 def train_round_edge(
-    current_round_data,
+    round_data,
     server_address,
     device_id
 ):
     # Aggregate parameters from all clients
-    total_num_samples, aggregated_parameters = aggregate(current_round_data)
+    total_num_samples, aggregated_parameters = aggregate(
+        round_data=round_data,
+        algorithm='fed_avg'
+    )
 
     print('Aggregated parameters in edge server')
 
@@ -142,8 +145,10 @@ def train_round_server(
     round_clients
 ):
     # Aggregate Parameters
-    total_num_samples, aggregated_parameters = aggregate(round_data)
-
+    total_num_samples, aggregated_parameters = aggregate(
+        round_data=round_data,
+        algorithm='fed_avg'
+    )
     print('Aggregated parameters in server')
 
     # Start Training for next round

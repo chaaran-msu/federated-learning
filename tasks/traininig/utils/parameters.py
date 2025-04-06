@@ -11,7 +11,7 @@ def set_parameters(
     params_list: List[np.ndarray]
 ):
     # Convert back to PyTorch tensors
-    params = [torch.tensor(params_list[f'arr_{i}']) for i in range(len(params_list.files))]
+    params = [torch.tensor(params_list[i]) for i in range(len(params_list))]
 
     # Load into model
     state_dict = model.state_dict()
@@ -47,11 +47,16 @@ def get_serialized_parameters(
     return serialized_params
 
 def deserialize_parameters(
-    serialized_params,
+    serialized_params
 ):
     binary_data = base64.b64decode(serialized_params)
     buffer = io.BytesIO(binary_data)
-    params_list = np.load(buffer)
+
+    # Load the compressed .npz archive
+    data = np.load(buffer)
+
+    # Retrieve arrays in order using the default keys 'arr_0', 'arr_1', ...
+    params_list = [data[f'arr_{i}'] for i in range(len(data.files))]
 
     return params_list
 

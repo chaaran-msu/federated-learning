@@ -27,7 +27,8 @@ def train_model(
     batch_size: int,
     parameters: List,
     learning_rate: float,
-    num_epochs: int
+    num_epochs: int,
+    logger
 ):
     # Set up the dataloaders
     trainloader, valloader = create_dataloaders_flower(
@@ -39,7 +40,7 @@ def train_model(
     # Load model parameters
     load_serialized_parameters(
         model=model,
-        parameters=parameters
+        serialized_params=parameters
     )
 
     # Criterion
@@ -67,6 +68,8 @@ def train_model(
         criterion=criterion
     )
 
+    logger.info(f'Test Accuracy: {accuracy}')
+
     # Set model parameters
     load_serialized_parameters(
         model=model,
@@ -92,7 +95,8 @@ def train_round_client(
     batch_size: int,
     parameters: List,
     learning_rate: float,
-    num_epochs: int
+    num_epochs: int,
+    logger
 ):
     # Train the model
     round_data = train_model(
@@ -101,7 +105,8 @@ def train_round_client(
         batch_size,
         parameters,
         learning_rate,
-        num_epochs
+        num_epochs,
+        logger
     )
 
     print('Completed training in client')

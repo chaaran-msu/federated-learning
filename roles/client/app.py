@@ -93,7 +93,8 @@ def create_app():
                 batch_size,
                 parameters,
                 learning_rate,
-                num_epochs
+                num_epochs,
+                logger
             ]
         )
         thread.start()

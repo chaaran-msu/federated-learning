@@ -110,7 +110,7 @@ def aggregate_clients():
             target=train_round_server,
             args=[
                 data_store['current_round_data'],
-                data['current_round_clients']
+                data_store['current_round_clients']
             ]
         )
         thread.start()

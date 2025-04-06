@@ -16,7 +16,7 @@ from roles.utils import get_local_address, get_local_port
 from allocate_resources import allocate_resources, on_ready
 
 # Obtain the server address
-server_port = 5000
+server_port = get_local_port()
 server_address = get_local_address(server_port)
 
 app = Flask(__name__)

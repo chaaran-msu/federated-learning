@@ -7,14 +7,11 @@ sys.path.append(os.path.join(dirname))
 sys.path.append(os.path.join(dirname, '../../'))
 
 import requests
-
-from tasks.traininig.models.baseline import Baseline
-from tasks.traininig.utils.parameters import get_serialized_parameters
+from tasks.traininig.start_training import start_training_server
 
 def bind_clients_edges(
     edges, 
-    clients, 
-    current_round_clients
+    clients
 ):
     # Now, we send a request to each edge to inform it of its assigned clients
     for edge in edges:
@@ -69,28 +66,13 @@ def bind_clients_edges(
                 except requests.exceptions.RequestException as e:
                     print(f"Error while trying to inform client {client_address} about edge {edge_address}: {e}")
 
+    print("Connections have been made and ready for training")
+
     # Start first round of training
-    start_training(current_round_clients)
-
-def start_training(clients):
-    # Initialize model with randomly selected parameters
-    model = Baseline()
-
-    # Get serialized parameters
-    parameters = get_serialized_parameters(
-        model=model
+    # Parameters will be initialized randomly
+    start_training_server(
+        clients=edges,
+        first_round=True
     )
 
-    # Start first round of training
-    for client in clients:
-        client_address = client['address']
-
-        data = {
-            'batch_size': 16,
-            'learning_rate': 0.1,
-            'num_epochs': 1,
-            'parameters': parameters
-        }
-
-        # Ask the client to start training
-        requests.post(f"{client_address}/start_training", json=data)
+    print('Started first round of training')

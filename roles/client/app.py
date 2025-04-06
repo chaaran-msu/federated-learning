@@ -81,8 +81,9 @@ def create_app():
         parameters = data.get('parameters', None)
 
         logger.info('Starting training in client')
+
         # Training
-        threading.Thread(
+        thread = threading.Thread(
             target=train_round_client,
             args=[
                 data_store['id'],
@@ -95,6 +96,7 @@ def create_app():
                 num_epochs
             ]
         )
+        thread.start()
 
         return 'OK'
 

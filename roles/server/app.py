@@ -104,13 +104,15 @@ def aggregate_clients():
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
         logger.info('Received parameters from all edge servers')
-        threading.Thread(
+        
+        thread = threading.Thread(
             target=train_round_server,
             args=[
                 data_store['current_round_data'],
                 data['current_round_clients']
             ]
         )
+        thread.start()
 
     return 'OK'
 

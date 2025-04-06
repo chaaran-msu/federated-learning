@@ -100,7 +100,6 @@ def create_app():
 
         # Start Training signal for clients
         logger.info('Starting training from edge')
-        logger.info(data_store['current_round_clients'])
 
         thread = threading.Thread(
             target=start_training_edge,
@@ -133,8 +132,9 @@ def create_app():
 
         # If all clients in this round have sent the data
         if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
-            print('Received parameters from all clients in edge server')
-            threading.Thread(
+            logger.info('Received parameters from all clients in edge server')
+            
+            thread = threading.Thread(
                 target=train_round_edge,
                 args=[
                     data_store['current_round_data'],
@@ -142,6 +142,7 @@ def create_app():
                     data_store['id']
                 ]
             )
+            thread.start()
 
         return 'OK'
 

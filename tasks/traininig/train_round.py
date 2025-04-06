@@ -70,12 +70,6 @@ def train_model(
 
     logger.info(f'Test Accuracy: {accuracy}')
 
-    # Set model parameters
-    load_serialized_parameters(
-        model=model,
-        parameters=parameters
-    )
-
     # Serialize model parameters
     serialized_params = get_serialized_parameters(model)
 

@@ -7,9 +7,10 @@ sys.path.append(os.path.join(dirname, '../../'))
 
 from flask import Flask, request, jsonify
 import requests
+import threading
 
 from roles.utils import get_local_port, get_local_address
-from tasks.traininig.train_round import train_round
+from tasks.traininig.train_round import train_round_client
 
 port = get_local_port()
 local_address = get_local_address(port)
@@ -72,24 +73,21 @@ def create_app():
         parameters = data.get('parameters', None)
 
         # Training
-        round_data = train_round(
-            num_clients=data_store['num_clients'],
-            partition_id=data_store['partition_id'],
-            parameters=parameters,
-            batch_size=batch_size,
-            learning_rate=learning_rate,
-            num_epochs=num_epochs
+        threading.Thread(
+            target=train_round_client,
+            args=[
+                data_store['id'],
+                data_store['server_address'],
+                data_store['num_clients'],
+                data_store['partition_id'],
+                parameters,
+                batch_size,
+                learning_rate,
+                num_epochs
+            ]
         )
 
-        round_data['id'] = data_store['id']
-
-        server_address = data_store['server_address']
-
-        # Send data back to server
-        requests.post(
-            url=f'{server_address}/aggregate',
-            json=round_data
-        )
+        return 'OK'
 
     # Stop App
     @app.route("/stop", methods=["POST"])

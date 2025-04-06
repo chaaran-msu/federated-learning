@@ -81,7 +81,6 @@ def create_app():
         parameters = data.get('parameters', None)
 
         logger.info('Starting training in client')
-        logger.info()
 
         # Training
         thread = threading.Thread(

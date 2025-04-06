@@ -144,12 +144,14 @@ def train_round_edge(
 
 def train_round_server(
     round_data,
-    round_clients
+    round_clients,
+    logger
 ):
     # Aggregate Parameters
     total_num_samples, aggregated_parameters = aggregate(
         round_data=round_data,
-        algorithm='fed_avg'
+        algorithm='fed_avg',
+        logger=logger
     )
     print('Aggregated parameters in server')
 

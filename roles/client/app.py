@@ -81,6 +81,7 @@ def create_app():
         parameters = data.get('parameters', None)
 
         logger.info('Starting training in client')
+        logger.info()
 
         # Training
         thread = threading.Thread(
@@ -90,8 +91,8 @@ def create_app():
                 data_store['server_address'],
                 data_store['num_clients'],
                 data_store['partition_id'],
-                parameters,
                 batch_size,
+                parameters,
                 learning_rate,
                 num_epochs
             ]

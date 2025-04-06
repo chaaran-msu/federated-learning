@@ -66,7 +66,7 @@ def create_app():
             'address': address,
         })
 
-        logging.log(data_store['clients'])
+        logging.info(data_store['clients'])
 
         return 'OK'
 
@@ -91,7 +91,7 @@ def create_app():
         data_store['current_round_clients'] = data_store['clients']
 
         # Start Training signal for clients
-        logging.log('Starting training from edge')
+        logging.info('Starting training from edge')
 
         threading.Thread(
             target=start_training_edge,

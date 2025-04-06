@@ -11,7 +11,11 @@ import requests
 from tasks.traininig.models.baseline import Baseline
 from tasks.traininig.utils.parameters import get_serialized_parameters
 
-def bind_clients_edges(edges, clients):
+def bind_clients_edges(
+    edges, 
+    clients, 
+    current_round_clients
+):
     # Now, we send a request to each edge to inform it of its assigned clients
     for edge in edges:
         edge_id = edge['id']
@@ -64,6 +68,9 @@ def bind_clients_edges(edges, clients):
                         print(f"Failed to inform client {client_address} about edge {edge_address}")
                 except requests.exceptions.RequestException as e:
                     print(f"Error while trying to inform client {client_address} about edge {edge_address}: {e}")
+
+    # Start first round of training
+    start_training(current_round_clients)
 
 def start_training(clients):
     # Initialize model with randomly selected parameters

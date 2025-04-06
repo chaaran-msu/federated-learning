@@ -69,7 +69,8 @@ def register_client():
     print(data_store['clients'])
 
     if len(data_store['edges']) == num_edges and len(data_store['clients']) == num_clients:
-        threading.Thread(target=bind_clients_edges, args=[data_store['edges'], data_store['clients']], daemon=True).start()
+        current_round_clients = data_store['edges']
+        threading.Thread(target=bind_clients_edges, args=[data_store['edges'], data_store['clients'], current_round_clients], daemon=True).start()
         print("Ready!")
 
     return 'OK'

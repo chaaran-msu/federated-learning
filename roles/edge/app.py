@@ -117,6 +117,7 @@ def create_app():
 
         # If all clients in this round have sent the data
         if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
+            print('Received parameters from all clients in edge server')
             threading.Thread(
                 target=train_round_edge,
                 args=[

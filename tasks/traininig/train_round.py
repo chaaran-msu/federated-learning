@@ -16,6 +16,7 @@ from traininig.utils.parameters import load_serialized_parameters, get_serialize
 from traininig.utils.train import train
 from traininig.utils.test import test
 from aggregation.aggregate import aggregate
+from traininig.start_training import start_training_server
 
 # Initialize model
 model = Baseline()
@@ -103,6 +104,8 @@ def train_round_client(
         num_epochs
     )
 
+    print('Completed training in client')
+
     # Send model to server for aggregation
     round_data['id'] = id
 
@@ -112,6 +115,8 @@ def train_round_client(
         json=round_data
     )
 
+    print('Sent to edge server for aggregation from client')
+
 def train_round_edge(
     current_round_data,
     server_address,
@@ -119,6 +124,8 @@ def train_round_edge(
 ):
     # Aggregate parameters from all clients
     total_num_samples, aggregated_parameters = aggregate(current_round_data)
+
+    print('Aggregated parameters in edge server')
 
     data = {
         'id': device_id,
@@ -129,6 +136,8 @@ def train_round_edge(
     # Send parameters up the hierarchy        
     requests.post(f"{server_address}/aggregate", json=data)
 
+    print('Sent to aggregation from edge server to main server')
+
 def train_round_server(
     round_data,
     round_clients
@@ -136,16 +145,12 @@ def train_round_server(
     # Aggregate Parameters
     total_num_samples, aggregated_parameters = aggregate(round_data)
 
+    print('Aggregated parameters in server')
+
     # Start Training for next round
-    for client in round_clients:
-        client_address = client['address']
+    start_training_server(
+        clients=round_clients,
+        parameters=aggregated_parameters
+    )
 
-        data = {
-            'batch_size': 16,
-            'learning_rate': 0.1,
-            'num_epochs': 1,
-            'parameters': aggregated_parameters
-        }
-
-        # Ask the client to start training
-        requests.post(f"{client_address}/start_training", json=data)
+    print('Started next round from server')

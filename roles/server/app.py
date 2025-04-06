@@ -116,6 +116,9 @@ def aggregate_clients():
         )
         thread.start()
 
+        # Reset the info for next round
+        data_store['current_round_data'] = {}
+
     return 'OK'
 
 # Stop training

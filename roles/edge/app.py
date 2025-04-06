@@ -98,6 +98,9 @@ def create_app():
         # Client Selection
         data_store['current_round_clients'] = data_store['clients']
 
+        # Reset data from previous round
+        data_store['current_round_data'] = {}
+
         # Start Training signal for clients
         logger.info('Starting training from edge')
 

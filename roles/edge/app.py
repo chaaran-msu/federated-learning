@@ -38,7 +38,7 @@ def create_app():
 
     # Create a custom logger
     logger = get_logger(
-        log_dir=os.path.join(dirname, '../log'),
+        log_dir=os.path.join(dirname, '../logs'),
         device_id=device_id,
         role='edge'
     )
@@ -100,6 +100,7 @@ def create_app():
 
         # Start Training signal for clients
         logger.info('Starting training from edge')
+        logger.info(data_store['current_round_clients'])
 
         threading.Thread(
             target=start_training_edge,

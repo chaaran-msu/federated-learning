@@ -19,8 +19,8 @@ def aggregate(
     algorithm: str,
 ):
     if algorithm == 'fed_avg':
-        num_samples = np.array([client_data['num_samples'] for client_data in round_data])
-        parameters = [deserialize_parameters(client_data['parameters']) for client_data in round_data]
+        num_samples = np.array([round_data[device_id]['num_samples'] for device_id in round_data])
+        parameters = [deserialize_parameters(round_data[device_id]['parameters']) for device_id in round_data]
 
         # Get the aggregated parameters
         total_num_samples, aggregated_parameters = fed_avg.aggregate(

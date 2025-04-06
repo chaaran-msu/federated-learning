@@ -7,9 +7,10 @@ sys.path.append(os.path.join(dirname, '../../'))
 
 from flask import Flask, request, jsonify
 import requests
+import threading
 
 from roles.utils import get_local_port, get_local_address
-from tasks.aggregation.aggregate import aggregate
+from tasks.traininig.train_round import train_round_edge
 
 port = get_local_port()
 local_address = get_local_address(port)
@@ -49,7 +50,6 @@ def create_app():
     def home():
         return jsonify({"message": "Edge Server API!"})
     
-
     # Register Clients
     @app.route("/register_client", methods=["POST"])
     def register_client():
@@ -110,17 +110,14 @@ def create_app():
 
         # If all clients in this round have sent the data
         if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
-            # Aggregate parameters from all clients
-            total_num_samples, aggregated_parameters = aggregate(data_store['current_round_data'])
-
-            data = {
-                'id': data_store['id'],
-                'num_samples': total_num_samples,
-                'parameters': aggregated_parameters
-            }
-
-            # Send parameters up the hierarchy        
-            requests.post(f"{data_store['server_address']}/aggregate", json=data)
+            threading.Thread(
+                target=train_round_edge,
+                args=[
+                    data_store['current_round_data'],
+                    data_store['server_address'],
+                    data_store['id']
+                ]
+            )
 
         return 'OK'
 

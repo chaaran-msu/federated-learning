@@ -14,6 +14,10 @@ from roles.utils import get_local_port, get_local_address
 from tasks.traininig.train_round import train_round_edge
 from tasks.traininig.start_training import start_training_edge
 
+logger = logging.getLogger("myapp")
+logger.setLevel(logging.INFO)
+logger.propagate = False  # Prevent double logging
+
 port = get_local_port()
 local_address = get_local_address(port)
 
@@ -66,7 +70,7 @@ def create_app():
             'address': address,
         })
 
-        logging.info(data_store['clients'])
+        logger.info(data_store['clients'])
 
         return 'OK'
 
@@ -91,7 +95,7 @@ def create_app():
         data_store['current_round_clients'] = data_store['clients']
 
         # Start Training signal for clients
-        logging.info('Starting training from edge')
+        logger.info('Starting training from edge')
 
         threading.Thread(
             target=start_training_edge,

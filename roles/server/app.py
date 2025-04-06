@@ -10,6 +10,7 @@ from flask import Flask, request, jsonify
 import requests
 import subprocess
 import threading
+import logging
 
 from roles.utils import get_local_address, get_local_port
 from allocate_resources import allocate_resources
@@ -22,6 +23,10 @@ server_address = get_local_address(server_port)
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing
+
+logger = logging.getLogger("myapp")
+logger.setLevel(logging.INFO)
+logger.propagate = False  # Prevent double logging
 
 # Sample data storage (in-memory)
 data_store = {

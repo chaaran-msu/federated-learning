@@ -8,9 +8,14 @@ sys.path.append(os.path.join(dirname, '../../'))
 from flask import Flask, request, jsonify
 import requests
 import threading
+import logging
 
 from roles.utils import get_local_port, get_local_address
 from tasks.traininig.train_round import train_round_client
+
+logger = logging.getLogger("myapp")
+logger.setLevel(logging.INFO)
+logger.propagate = False  # Prevent double logging
 
 port = get_local_port()
 local_address = get_local_address(port)
@@ -72,6 +77,7 @@ def create_app():
         num_epochs = data.get('num_epochs', None)
         parameters = data.get('parameters', None)
 
+        logger.info('Starting training in client')
         # Training
         threading.Thread(
             target=train_round_client,

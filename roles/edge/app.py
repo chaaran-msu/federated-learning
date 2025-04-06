@@ -8,6 +8,7 @@ sys.path.append(os.path.join(dirname, '../../'))
 from flask import Flask, request, jsonify
 import requests
 import threading
+import logging
 
 from roles.utils import get_local_port, get_local_address
 from tasks.traininig.train_round import train_round_edge
@@ -65,7 +66,7 @@ def create_app():
             'address': address,
         })
 
-        print(data_store['clients'])
+        logging.log(data_store['clients'])
 
         return 'OK'
 
@@ -90,7 +91,7 @@ def create_app():
         data_store['current_round_clients'] = data_store['clients']
 
         # Start Training signal for clients
-        print('Starting training from edge')
+        logging.log('Starting training from edge')
 
         threading.Thread(
             target=start_training_edge,

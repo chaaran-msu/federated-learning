@@ -9,26 +9,30 @@ from typing import List
 import numpy as np
 
 class FedeartedAveraging():
-    def __init__(self):
+    def __init__(
+        self, 
+    ):
         pass
 
     def weighted_average(
         self,
         weights: np.ndarray,
-        values: np.ndarray
+        values: np.ndarray,
     ):
         return np.tensordot(weights, values, axes=(0,0)) / np.sum(weights)
 
     def aggregate(
         self,
         num_samples: np.ndarray, 
-        parameters: List
+        parameters: List,
+        logger
     ):
         total_num_samples = np.sum(num_samples)
 
         aggregated_parameters = []
 
         for elements in zip(*parameters):
+            logger.info(elements)
             aggregated_parameters.append(
                 self.weighted_average(
                     weights=num_samples, 

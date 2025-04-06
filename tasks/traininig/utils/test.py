@@ -16,7 +16,7 @@ def test(
     dataloader: torch.utils.data.DataLoader,
     criterion: nn.Module,
 ):
-    model.test()
+    model.eval()
 
     batch_losses = []
 

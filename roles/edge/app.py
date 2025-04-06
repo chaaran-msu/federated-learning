@@ -14,10 +14,6 @@ from roles.utils import get_local_port, get_local_address
 from tasks.traininig.train_round import train_round_edge
 from tasks.traininig.start_training import start_training_edge
 
-logger = logging.getLogger("myapp")
-logger.setLevel(logging.INFO)
-logger.propagate = False  # Prevent double logging
-
 port = get_local_port()
 local_address = get_local_address(port)
 
@@ -38,6 +34,10 @@ data_store = {
 def create_app():
     app = Flask(__name__)
     # CORS(app)  # Enable Cross-Origin Resource Sharing
+
+    logger = logging.getLogger("myapp")
+    logger.setLevel(logging.INFO)
+    logger.propagate = False  # Prevent double logging
 
     # Register with main server
     with app.app_context():

@@ -11,6 +11,7 @@ import threading
 
 from roles.utils import get_local_port, get_local_address
 from tasks.traininig.train_round import train_round_edge
+from tasks.traininig.start_training import start_training_edge
 
 port = get_local_port()
 local_address = get_local_address(port)
@@ -76,18 +77,24 @@ def create_app():
         num_epochs = data.get('num_epochs', None)
         parameters = data.get('parameters', None)
 
-        for client_idx in data_store['current_round_clients']:
-            client_url = data_store['clients'][client_idx]['address']
+        training_data = {
+            'batch_size': batch_size,
+            'learning_rate': learning_rate,
+            'num_epochs': num_epochs,
+            'parameters': parameters
+        }
 
-            data = {
-                'batch_size': batch_size,
-                'learning_rate': learning_rate,
-                'num_epochs': num_epochs,
-                'parameters': parameters
-            }
+        # Client Selection
+        data_store['current_round_clients'] = data_store['clients']
 
-            # Ask the client to start training
-            requests.post(f"{client_url}/start_training", json=data)
+        # Start Training signal for clients
+        threading.Thread(
+            target=start_training_edge,
+            args=[
+                data_store['current_round_clients'],
+                training_data
+            ]
+        )
 
         return 'OK'
 

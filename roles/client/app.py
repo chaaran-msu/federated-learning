@@ -8,9 +8,9 @@ sys.path.append(os.path.join(dirname, '../../'))
 from flask import Flask, request, jsonify
 import requests
 import threading
-import logging
 
 from roles.utils import get_local_port, get_local_address
+from roles.logging import get_logger
 from tasks.traininig.train_round import train_round_client
 
 port = get_local_port()
@@ -34,9 +34,11 @@ def create_app():
     app = Flask(__name__)
     # CORS(app)  # Enable Cross-Origin Resource Sharing
 
-    logger = logging.getLogger("myapp")
-    logger.setLevel(logging.INFO)
-    logger.propagate = False  # Prevent double logging
+    logger = get_logger(
+        log_dir=os.path.join(dirname, '../'),
+        device_id=device_id,
+        role='client'
+    )
 
 
     with app.app_context():

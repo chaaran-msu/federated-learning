@@ -10,9 +10,10 @@ from flask import Flask, request, jsonify
 import requests
 import subprocess
 import threading
-import logging
+import uuid
 
 from roles.utils import get_local_address, get_local_port
+from roles.logging import get_logger
 from allocate_resources import allocate_resources
 from communication import bind_clients_edges
 from tasks.traininig.train_round import train_round_server
@@ -20,13 +21,18 @@ from tasks.traininig.train_round import train_round_server
 # Obtain the server address
 server_port = get_local_port()
 server_address = get_local_address(server_port)
+server_id = uuid.uuid4()
+
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing
 
-logger = logging.getLogger("myapp")
-logger.setLevel(logging.INFO)
-logger.propagate = False  # Prevent double logging
+# Create a custom logger
+logger = get_logger(
+    log_dir=os.path.join(dirname, '../'),
+    device_id=server_id,
+    role='server'
+)
 
 # Sample data storage (in-memory)
 data_store = {
@@ -69,9 +75,9 @@ def register_client():
             'edge_index': edge_index
         })
 
-    print("test:")
-    print(data_store['edges'])
-    print(data_store['clients'])
+    logger.info("test:")
+    logger.info(data_store['edges'])
+    logger.info(data_store['clients'])
 
     if len(data_store['edges']) == num_edges and len(data_store['clients']) == num_clients:
         threading.Thread(target=bind_clients_edges, args=[data_store['edges'], data_store['clients']], daemon=True).start()
@@ -97,7 +103,7 @@ def aggregate_clients():
 
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
-        print('Received parameters from all edge servers')
+        logger.info('Received parameters from all edge servers')
         threading.Thread(
             target=train_round_server,
             args=[

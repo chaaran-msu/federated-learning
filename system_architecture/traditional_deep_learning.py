@@ -76,14 +76,16 @@ epoch_losses, epoch_accuracies = train(
     dataloader=trainloader,
     num_epochs=num_rounds,
     criterion=criterion,
-    optimizer=optimizer
+    optimizer=optimizer, 
+    traditional=True
 )
 
 # Testing
 batch_losses, accuracy = test(
     model=model,
     dataloader=testloader,
-    criterion=criterion
+    criterion=criterion,
+    traditional=True
 )
 
 print('Training accuracy:', epoch_accuracies[-1])

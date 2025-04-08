@@ -16,7 +16,8 @@ def train_epoch(
     model: nn.Module,
     dataloader: torch.utils.data.DataLoader,
     criterion: nn.Module,
-    optimizer: torch.optim.Optimizer
+    optimizer: torch.optim.Optimizer,
+    traditional: bool = False
 ):
     model.train()
 
@@ -27,12 +28,18 @@ def train_epoch(
 
     # Iterate through batch
     for idx, batch in enumerate(dataloader):
-        print(batch)
-        # Forward pass
-        outputs = model(batch['img'])
+        if traditional:
+            # Forward pass
+            outputs = model(batch[0])
 
-        #  Compte loss
-        loss = criterion(outputs, batch['label'])
+            #  Compte loss
+            loss = criterion(outputs, batch[1])
+        else:
+            # Forward pass
+            outputs = model(batch['img'])
+
+            #  Compte loss
+            loss = criterion(outputs, batch['label'])
 
         # Backward pass
         optimizer.zero_grad()

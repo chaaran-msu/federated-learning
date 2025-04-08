@@ -15,6 +15,7 @@ def test(
     model: nn.Module,
     dataloader: torch.utils.data.DataLoader,
     criterion: nn.Module,
+    traditional: bool = False
 ):
     model.eval()
 
@@ -26,11 +27,18 @@ def test(
     with torch.no_grad():
         # Iterate through batch
         for idx, batch in enumerate(dataloader):
-            # Forward pass
-            outputs = model(batch['img'])
+            if traditional:
+                # Forward pass
+                outputs = model(batch[0])
 
-            #  Compte loss
-            loss = criterion(outputs, batch['label'])
+                #  Compte loss
+                loss = criterion(outputs, batch[1])
+            else:
+                # Forward pass
+                outputs = model(batch['img'])
+
+                #  Compte loss
+                loss = criterion(outputs, batch['label'])
 
             num_correct, accuracy = compute_accuracy(
                 ground_truths=batch['label'].detach().cpu().numpy(),

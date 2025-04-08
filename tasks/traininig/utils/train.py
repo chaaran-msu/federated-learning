@@ -66,14 +66,15 @@ def train(
     dataloader,
     num_epochs,
     criterion: nn.Module,
-    optimizer: torch.optim.Optimizer
+    optimizer: torch.optim.Optimizer,
+    traditional: bool = False
 ):
     all_batch_losses = []
     epoch_losses = []
     epoch_accuracies = []
 
     for i in range(num_epochs):
-        batch_losses, epoch_loss, epoch_accuracy = train_epoch(model, dataloader, criterion, optimizer)
+        batch_losses, epoch_loss, epoch_accuracy = train_epoch(model, dataloader, criterion, optimizer, traditional)
 
         all_batch_losses.append(batch_losses)
         epoch_losses.append(epoch_loss)

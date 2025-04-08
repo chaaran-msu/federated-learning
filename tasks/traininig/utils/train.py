@@ -27,6 +27,7 @@ def train_epoch(
 
     # Iterate through batch
     for idx, batch in enumerate(dataloader):
+        print(batch)
         # Forward pass
         outputs = model(batch['img'])
 

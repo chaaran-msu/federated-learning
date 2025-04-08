@@ -28,26 +28,26 @@ def test(
         # Iterate through batch
         for idx, batch in enumerate(dataloader):
             if traditional:
-                # Forward pass
-                outputs = model(batch[0])
-
-                #  Compte loss
-                loss = criterion(outputs, batch[1])
+                image = batch[0]
+                labels = batch[1]
             else:
-                # Forward pass
-                outputs = model(batch['img'])
+                image = batch['img']
+                labels = batch['label']
 
-                #  Compte loss
-                loss = criterion(outputs, batch['label'])
+            # Forward pass
+            outputs = model(image)
+
+            #  Compte loss
+            loss = criterion(outputs, labels)
 
             num_correct, accuracy = compute_accuracy(
-                ground_truths=batch['label'].detach().cpu().numpy(),
+                ground_truths=labels.detach().cpu().numpy(),
                 predictions=torch.argmax(outputs, dim=-1).detach().cpu().numpy()
             )
 
             batch_losses.append(loss)
 
             total_num_correct += num_correct
-            total_count += batch['label'].shape[0]
+            total_count += labels.shape[0]
 
     return batch_losses, total_num_correct / total_count

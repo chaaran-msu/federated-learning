@@ -76,6 +76,8 @@ def train(
     for i in range(num_epochs):
         batch_losses, epoch_loss, epoch_accuracy = train_epoch(model, dataloader, criterion, optimizer, traditional)
 
+        print(f'{i+1}/num_epochs - Accuracy: {epoch_accuracy}, Loss: {epoch_loss}')
+
         all_batch_losses.append(batch_losses)
         epoch_losses.append(epoch_loss)
         epoch_accuracies.append(epoch_accuracy)

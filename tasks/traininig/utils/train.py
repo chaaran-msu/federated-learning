@@ -17,7 +17,8 @@ def train_epoch(
     dataloader: torch.utils.data.DataLoader,
     criterion: nn.Module,
     optimizer: torch.optim.Optimizer,
-    traditional: bool = False
+    traditional: bool = False,
+    device: str = 'cpu' 
 ):
     model.train()
 
@@ -34,6 +35,9 @@ def train_epoch(
         else:
             image = batch['img']
             labels = batch['label']
+
+        image = image.to(device)
+        labels = labels.to(device)
 
         # Forward pass
         outputs = model(image)
@@ -67,16 +71,17 @@ def train(
     num_epochs,
     criterion: nn.Module,
     optimizer: torch.optim.Optimizer,
-    traditional: bool = False
+    traditional: bool = False,
+    device: str = 'cpu' 
 ):
     all_batch_losses = []
     epoch_losses = []
     epoch_accuracies = []
 
     for i in range(num_epochs):
-        batch_losses, epoch_loss, epoch_accuracy = train_epoch(model, dataloader, criterion, optimizer, traditional)
+        batch_losses, epoch_loss, epoch_accuracy = train_epoch(model, dataloader, criterion, optimizer, traditional, device)
 
-        print(f'{i+1}/num_epochs - Accuracy: {epoch_accuracy}, Loss: {epoch_loss}')
+        print(f'{i+1}/{num_epochs} - Accuracy: {epoch_accuracy * 100}, Loss: {epoch_loss}')
 
         all_batch_losses.append(batch_losses)
         epoch_losses.append(epoch_loss)

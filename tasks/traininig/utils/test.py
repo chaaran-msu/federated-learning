@@ -15,7 +15,8 @@ def test(
     model: nn.Module,
     dataloader: torch.utils.data.DataLoader,
     criterion: nn.Module,
-    traditional: bool = False
+    traditional: bool = False,
+    device: str = 'cpu' 
 ):
     model.eval()
 
@@ -33,6 +34,9 @@ def test(
             else:
                 image = batch['img']
                 labels = batch['label']
+
+            image = image.to(device)
+            labels = labels.to(device)
 
             # Forward pass
             outputs = model(image)

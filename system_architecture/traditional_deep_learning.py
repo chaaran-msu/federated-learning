@@ -15,6 +15,8 @@ from tasks.traininig.models.baseline import Baseline
 from tasks.traininig.utils.train import train
 from tasks.traininig.utils.test import test
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 # Dataset Transforms
 transform = transforms.Compose(
     [transforms.ToTensor(),
@@ -43,20 +45,19 @@ trainloader = torch.utils.data.DataLoader(
     trainset, 
     batch_size=batch_size,
     shuffle=True, 
-    num_workers=2
 )
 
 testloader = torch.utils.data.DataLoader(
     testset, 
     batch_size=batch_size,
     shuffle=False, 
-    num_workers=2
 )
 
 classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 # Model
 model = Baseline()
+model.to(device)
 
 # Criterion
 criterion = nn.CrossEntropyLoss()
@@ -77,7 +78,8 @@ epoch_losses, epoch_accuracies = train(
     num_epochs=num_rounds,
     criterion=criterion,
     optimizer=optimizer, 
-    traditional=True
+    traditional=True,
+    device=device
 )
 
 # Testing
@@ -85,7 +87,8 @@ batch_losses, accuracy = test(
     model=model,
     dataloader=testloader,
     criterion=criterion,
-    traditional=True
+    traditional=True,
+    device=device
 )
 
 print('Training accuracy:', epoch_accuracies[-1])

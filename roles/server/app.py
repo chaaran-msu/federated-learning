@@ -18,9 +18,12 @@ from roles.logging import get_logger
 
 from systems.traditional_fl.allocate_resources import allocate_resources as allocate_resources_traditional_fl
 from systems.hierarchical_fl.allocate_resources import allocate_resources as allocate_resources_hierarchical_fl
+from systems.multi_level_fl.allocate_resources import allocate_resources as allocate_resources_multi_level_fl
 
 from systems.traditional_fl.registration import registration as registration_traditional_fl
 from systems.hierarchical_fl.registration import registration as registration_hierarchical_fl
+from systems.multi_level_fl.registration import registration as registration_multi_level_fl
+
 
 from tasks.traininig.train_round import train_round_server
 
@@ -37,6 +40,9 @@ if architecture == 'traditional_fl':
 elif architecture == 'hierarchical_fl':
     allocate_resources = allocate_resources_hierarchical_fl
     registration = registration_hierarchical_fl
+elif architecture == 'multi_hfl':
+    allocate_resources = allocate_resources_multi_level_fl
+    registration = registration_multi_level_fl
 
 # Obtain the server address
 server_port = get_local_port()

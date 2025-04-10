@@ -23,7 +23,6 @@ def submit(
 ):
     script = f"""#!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --time={time}
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task={cpu}
 #SBATCH --mem={mem}G

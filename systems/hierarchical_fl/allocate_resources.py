@@ -84,6 +84,7 @@ def allocate_resources(
                     mem=mem, 
                     cpu=cpu, 
                     cluster=cluster,
+                    architecture=architecture_name
                 )
             )
 

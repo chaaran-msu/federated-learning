@@ -52,7 +52,8 @@ def allocate_resources(
                 mem=mem, 
                 cpu=cpu, 
                 cluster=cluster,
-                architecture=architecture_name
+                architecture=architecture_name,
+                num_edge_client_rounds=num_edge_client_rounds
             )
         )
 

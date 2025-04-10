@@ -28,7 +28,7 @@ def train_model(
     parameters: List,
     learning_rate: float,
     num_epochs: int,
-    logger
+    logger,
 ):
     # Set up the dataloaders
     trainloader, valloader = create_dataloaders_flower(
@@ -90,7 +90,9 @@ def train_round_client(
     parameters: List,
     learning_rate: float,
     num_epochs: int,
-    logger
+    logger,
+    training_data: dict,
+    results_file_path: str
 ):
     # Train the model
     round_data = train_model(
@@ -103,18 +105,26 @@ def train_round_client(
         logger
     )
 
-    print('Completed training in client')
+    # Update round number 
+    training_data['round'] += 1
+
+    # Save results in text file for analysis
+    with open(results_file_path, 'a') as file:
+        file.write(f'{training_data["round"]},{round_data["accuracy"]}' + '\n') 
+
+    logger.info('Completed training in client')
 
     # Send model to server for aggregation
     round_data['id'] = id
-
+    round_data['round'] = training_data['round']
+    
     # Send data back to server
     requests.post(
         url=f'http://{server_address}/aggregate',
         json=round_data
     )
 
-    print('Sent to edge server for aggregation from client')
+    logger.info('Sent to edge server for aggregation from client')
 
 def train_round_edge(
     round_data,

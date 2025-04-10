@@ -26,7 +26,11 @@ data_store = {
     'partition_id': None,
     'num_clients': None,
     'server_id': None,
-    'server_address': None
+    'server_address': None,
+}
+
+training_data = {
+    'round': 0
 }
 
 def create_app():
@@ -39,6 +43,12 @@ def create_app():
         role='client'
     )
 
+    # Create results folder
+    results_folder = os.path.join(dirname, '../results')
+    os.makedirs(results_folder, exist_ok=True)
+
+    # Results file path
+    results_file_path = os.path.join(results_folder, f'{device_id}_client.txt')
 
     with app.app_context():
         # Register with the main server
@@ -93,7 +103,9 @@ def create_app():
                 parameters,
                 learning_rate,
                 num_epochs,
-                logger
+                logger,
+                training_data,
+                results_file_path
             ]
         )
         thread.start()

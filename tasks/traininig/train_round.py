@@ -10,6 +10,7 @@ import torch
 from torch import nn
 from typing import List
 import requests
+import time
 
 from traininig.data.create_dataloaders import create_dataloaders_flower, create_dataloaders_flower_multiple_partitions, create_global_test_dataloader
 from traininig.models.baseline import Baseline
@@ -32,6 +33,8 @@ def train_model(
     num_epochs: int,
     logger,
 ):
+    train_start_time = time.time()
+
     # Set up the dataloaders
     trainloader, valloader = create_dataloaders_flower(
         num_clients=num_clients,
@@ -63,6 +66,10 @@ def train_model(
         optimizer=optimizer
     )
 
+    train_end_time = time.time()
+
+    test_start_time = time.time()
+
     # Testing
     batch_losses, accuracy = test(
         model=model,
@@ -71,6 +78,8 @@ def train_model(
     )
 
     logger.info(f'Test Accuracy: {accuracy}')
+
+    test_end_time = time.time()
 
     # Serialize model parameters
     serialized_params = get_serialized_parameters(model)
@@ -81,7 +90,12 @@ def train_model(
         'num_samples': len(trainloader.dataset)
     }
 
-    return round_data
+    computational_latency = {
+        'training_time': train_end_time - train_start_time,
+        'testing_time': test_end_time - test_start_time
+    }
+    
+    return round_data, computational_latency
 
 def test_model(
     num_clients,
@@ -142,7 +156,7 @@ def train_round_client(
     results_file_path: str
 ):
     # Train the model
-    round_data = train_model(
+    round_data, computational_latency = train_model(
         num_clients,
         partition_id,
         batch_size,
@@ -157,7 +171,7 @@ def train_round_client(
 
     # Save results in text file for analysis
     with open(results_file_path, 'a') as file:
-        file.write(f'{training_data["round"]},{round_data["accuracy"]}' + '\n') 
+        file.write(f'{training_data["round"]},{round_data["accuracy"]},{computational_latency["training_time"]},{computational_latency["testing_time"]}' + '\n') 
 
     logger.info('Completed training in client')
 
@@ -184,12 +198,16 @@ def train_round_edge(
     logger,
     results_file_path
 ):
+    aggregation_start_time = time.time()
+
     # Aggregate parameters from all clients
     total_num_samples, aggregated_parameters = aggregate(
         round_data=round_data,
         algorithm='fed_avg',
         logger=logger
     )
+
+    aggregation_end_time = time.time()
 
     logger.info(f'Aggregated parameters in edge server using {total_num_samples} samples')
 
@@ -200,6 +218,8 @@ def train_round_edge(
         'round': round_num,
     }
 
+    test_start_time = time.time()
+
     test_data = test_model(
         num_clients,
         aggregated_parameters,
@@ -209,9 +229,16 @@ def train_round_edge(
         logger
     )
 
+    test_end_time = time.time()
+
+    computational_latency = {
+        'aggregation_time': aggregation_end_time - aggregation_start_time,
+        'testing_time': test_end_time - test_start_time
+    }
+
     # Save results in text file for analysis
     with open(results_file_path, 'a') as file:
-        file.write(f'{round_num},{test_data["accuracy"]}' + '\n') 
+        file.write(f'{round_num},{test_data["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]}' + '\n') 
 
     # Send parameters up the hierarchy        
     requests.post(f"http://{server_address}/aggregate", json=data)
@@ -229,13 +256,20 @@ def train_round_server(
     logger,
     results_file_path
 ):
+    aggregation_start_time = time.time()
+
     # Aggregate Parameters
     total_num_samples, aggregated_parameters = aggregate(
         round_data=round_data,
         algorithm='fed_avg',
         logger=logger
     )
+
+    aggregation_end_time = time.time()
+
     print(f'Aggregated parameters in server using {total_num_samples} samples')
+
+    test_start_time = time.time()
 
     test_data = test_model(
         num_clients,
@@ -246,6 +280,10 @@ def train_round_server(
         logger
     )
 
+    test_end_time = time.time()
+
+    test_global_start_time = time.time()
+
     test_data_global = test_model(
         num_clients,
         aggregated_parameters,
@@ -255,9 +293,17 @@ def train_round_server(
         logger
     )
 
+    test_global_end_time = time.time()
+
+    computational_latency = {
+        'aggregation_time': aggregation_end_time - aggregation_start_time,
+        'testing_time': test_end_time - test_start_time,
+        'global_testing_time': test_global_end_time - test_global_start_time
+    }
+
     # Save results in text file for analysis
     with open(results_file_path, 'a') as file:
-        file.write(f'{round_num},{test_data["accuracy"]},{test_data_global["accuracy"]}' + '\n') 
+        file.write(f'{round_num},{test_data["accuracy"]},{test_data_global["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]},{computational_latency["global_testing_time"]}' + '\n') 
 
     if round_num < num_rounds:
         # Start Training for next round

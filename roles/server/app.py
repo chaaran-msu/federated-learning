@@ -167,8 +167,13 @@ def aggregate_clients():
         )
         thread.start()
 
-        # Reset the info for next round
-        data_store['current_round_data'] = {}
+    return 'OK'
+
+# Reset round training data
+@app.route("/reset", methods=["POST"])
+def reset():
+    data_store['current_round_data'] = {}
+    logger.info('Reset previous round data')
 
     return 'OK'
 

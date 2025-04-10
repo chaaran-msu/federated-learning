@@ -295,14 +295,17 @@ def train_round_server(
 
     print(f'Aggregated parameters in server using {total_num_samples} samples')
 
-    if round_num % 5 == 0:
+    # Reset current training round data
+    requests.post(f"http://{main_server_address}/reset")
+    
+    if round_num % 1 == 0:
         test_start_time = time.time()
 
         test_data = test_model(
             num_clients,
             aggregated_parameters,
             partition_ids,
-            batch_size,
+            8,
             "server",
             logger
         )
@@ -315,7 +318,7 @@ def train_round_server(
             num_clients,
             aggregated_parameters,
             [0],
-            batch_size,
+            8,
             "server_global",
             logger
         )

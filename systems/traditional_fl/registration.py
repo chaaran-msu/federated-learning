@@ -14,9 +14,9 @@ def registration(
     server_address,
     clients
 ):
-    for client_idx, client in enumerate(clients):
-        client_id = client['id']
-        client_address = client['address']
+    for client_idx, client_id in enumerate(clients):
+        client_address = clients[client_id]['address']
+        client_server_id = clients[client_id]['server_id']
 
         client_url = f'http://{client_address}/register_server'
 

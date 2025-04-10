@@ -9,6 +9,61 @@ sys.path.append(os.path.join(dirname, '../../'))
 import requests
 from tasks.traininig.start_training import start_training_server
 
+def inform_server(
+    server_address,
+    client_id,
+    client_address
+):
+    # Construct the URL to inform the edge about its client
+    edge_url = f'http://{server_address}/register_client'
+
+    # Send the POST request to the edge to register the client
+    try:
+        edge_res = requests.post(
+            edge_url,
+            json={
+                'id': client_id,
+                'address': client_address
+            }
+        )
+
+        # Check if the request was successful
+        if edge_res.status_code == 200:
+            print(f"Successfully bound client {client_address} to edge {server_address}")
+        else:
+            print(f"Failed to bind client {client_address} to edge {server_address}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error while trying to bind client {client_address} to edge {server_address}: {e}")    
+
+
+def inform_client(
+    client_address,
+    server_id,
+    server_address,
+    partition_id,
+    num_clients
+):
+    client_url = f'http://{client_address}/register_server'
+
+    # Send the POST request to the client to inform it of its assigned edge
+    try:
+        client_res = requests.post(
+            client_url,
+            json={
+                'server_id': server_id,
+                'server_address': server_address,
+                'partition_id': partition_id,
+                'num_clients': num_clients
+            }
+        )
+        # Check if the request was successful
+        if client_res.status_code == 200:
+            print(f"Successfully informed client {client_address} about edge {server_address}")
+        else:
+            print(f"Failed to inform client {client_address} about edge {server_address}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error while trying to inform client {client_address} about edge {server_address}: {e}")
+
 def registration(
     main_server_id,
     main_server_address,
@@ -16,10 +71,9 @@ def registration(
     clients
 ):
     # Now, we send a request to each edge to inform it of its assigned clients
-    for edge in edges:
-        edge_id = edge['id']
-        edge_address = edge['address']
-        server_id = edge['server_id']
+    for edge_id in edges:
+        edge_address = edges[edge_id]['address']
+        server_id = edges[edge_id]['server_id']
 
         # Inform the edge server about their server
         if server_id == main_server_id:
@@ -45,54 +99,41 @@ def registration(
                 print(f"Error while trying to bind client {client_address} to edge {edge_address}: {e}")
 
 
-        for client_idx, client in enumerate(clients):
-            client_id = client['id']
-            client_address = client['address']
-            client_server_id = client['server_id']
+    for client_idx, client_id in enumerate(clients):
+        client_address = clients[client_id]['address']
+        client_server_id = clients[client_id]['server_id']
 
-            if edge_id == client_server_id:  # If the edge is responsible for the client
-                # Construct the URL to inform the edge about its client
-                edge_url = f'http://{edge_address}/register_client'
+        if client_server_id == main_server_id:
+            server_address = main_server_address
 
-                # Send the POST request to the edge to register the client
-                try:
-                    edge_res = requests.post(
-                        edge_url,
-                        json={
-                            'id': client_id,
-                            'address': client_address
-                        }
-                    )
+            # No need to inform the server about the client
 
-                    # Check if the request was successful
-                    if edge_res.status_code == 200:
-                        print(f"Successfully bound client {client_address} to edge {edge_address}")
-                    else:
-                        print(f"Failed to bind client {client_address} to edge {edge_address}")
-                except requests.exceptions.RequestException as e:
-                    print(f"Error while trying to bind client {client_address} to edge {edge_address}: {e}")
+            # Inform the client about the server
+            inform_client(
+                client_address,
+                client_server_id,
+                server_address,
+                client_idx,
+                len(clients)
+            )
+        else:
+            server_address = edges[client_server_id]['address']
 
-                # Construct the URL to inform the client about its assigned edge
-                client_url = f'http://{client_address}/register_server'
+            # Inform server about client
+            inform_server(
+                server_address,
+                client_id,
+                client_address
+            )
 
-                # Send the GET request to the client to inform it of its assigned edge
-                try:
-                    client_res = requests.post(
-                        client_url,
-                        json={
-                            'server_id': edge_id,
-                            'server_address': edge_address,
-                            'partition_id': client_idx,
-                            'num_clients': len(clients)
-                        }
-                    )
-                    # Check if the request was successful
-                    if client_res.status_code == 200:
-                        print(f"Successfully informed client {client_address} about edge {edge_address}")
-                    else:
-                        print(f"Failed to inform client {client_address} about edge {edge_address}")
-                except requests.exceptions.RequestException as e:
-                    print(f"Error while trying to inform client {client_address} about edge {edge_address}: {e}")
+            # Inform the client about the server
+            inform_client(
+                client_address,
+                client_server_id,
+                server_address,
+                client_idx,
+                len(clients)
+            )
 
     print("Connections have been made and ready for training")
 

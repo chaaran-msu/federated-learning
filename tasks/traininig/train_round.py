@@ -312,8 +312,10 @@ def train_round_server(
             clients=round_clients,
             parameters=aggregated_parameters
         )
+
+        logger.info('Started next round from server')
     # Else, stop training
     else:
         requests.post(f"http://{main_server_address}/stop")
-
-    print('Started next round from server')
+        
+        logger.info('Finsihed training')

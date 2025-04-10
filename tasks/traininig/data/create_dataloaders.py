@@ -10,7 +10,7 @@ def create_dataloaders_flower(
     batch_size: int,
 ):
     # Initialize the dataset
-    fds = FederatedDataset(dataset="cifar10", partitioners={"train": num_clients})\
+    fds = FederatedDataset(dataset="cifar10", partitioners={"train": num_clients}, seed=42)
     
     # Load dataset for this device
     partition = fds.load_partition(partition_id)

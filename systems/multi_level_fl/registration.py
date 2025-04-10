@@ -125,6 +125,27 @@ def registration(
         else:
             server_address = edges[server_id]['address']
 
+            # Construct the URL to inform the server about its client
+            edge_url = f'http://{server_address}/register_client'
+
+            # Send the POST request to the edge to register the client
+            try:
+                edge_res = requests.post(
+                    edge_url,
+                    json={
+                        'id': edge_id,
+                        'address': edge_address,
+                    }
+                )
+
+                # Check if the request was successful
+                if edge_res.status_code == 200:
+                    print(f"Successfully bound edge {edge_address} to server {server_address}")
+                else:
+                    print(f"Failed to bind edge {edge_address} to server {server_address}")
+            except requests.exceptions.RequestException as e:
+                print(f"Error while trying to bind edge {edge_address} to server {server_address}: {e}")
+
         # Construct the URL to inform the edge about its server
         edge_url = f'http://{edge_address}/register_server'
 
@@ -142,11 +163,11 @@ def registration(
 
             # Check if the request was successful
             if edge_res.status_code == 200:
-                print(f"Successfully bound edge {edge_address} to server {main_server_address}")
+                print(f"Successfully bound edge {edge_address} to server {server_address}")
             else:
-                print(f"Failed to bind edge {edge_address} to server {main_server_address}")
+                print(f"Failed to bind edge {edge_address} to server {server_address}")
         except requests.exceptions.RequestException as e:
-            print(f"Error while trying to bind edge {edge_address} to server {main_server_address}: {e}")
+            print(f"Error while trying to bind edge {edge_address} to server {server_address}: {e}")
 
     print("Connections have been made and ready for training")
 

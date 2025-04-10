@@ -9,7 +9,7 @@ import uuid
 
 from roles.utils import submit
 
-architecure = {
+architecture = {
     'defaults': {'time': '00:05:00'},
     'clients': [
         {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
@@ -22,15 +22,15 @@ architecure = {
 def allocate_resources(
     main_server_id,
     main_server_address,
-    architecture
+    architecture_name
 ):
     # Submit jobs to allocate resources
     jobs = set()
 
-    num_clients = len(architecure['clients'])
-    t_time = architecure.get('defaults', {}).get('time', '00:05:00')
+    num_clients = len(architecture['clients'])
+    t_time = architecture.get('defaults', {}).get('time', '00:05:00')
 
-    for client_index, client in enumerate(architecure['clients']):
+    for client_index, client in enumerate(architecture['clients']):
         device_id = uuid.uuid4()
 
         mem = client.get('mem', 1)
@@ -47,7 +47,7 @@ def allocate_resources(
                 mem=mem, 
                 cpu=cpu, 
                 cluster=cluster,
-                architecture=architecture
+                architecture=architecture_name
             )
         )
 

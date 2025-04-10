@@ -19,7 +19,6 @@ from traininig.utils.train import train
 from traininig.utils.test import test
 from aggregation.aggregate import aggregate
 from traininig.start_training import start_training_server
-from roles.server.app import stop
 
 # Initialize model
 model = Baseline()

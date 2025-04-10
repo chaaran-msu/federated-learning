@@ -93,7 +93,7 @@ def test_model(
         # Set up the dataloaders
         trainloader, test_loader = create_dataloaders_flower_multiple_partitions(
             num_clients=num_clients,
-            partition_id=partition_ids,
+            partition_ids=partition_ids,
             batch_size=batch_size
         )
     elif mode == 'server_global':

@@ -10,7 +10,7 @@ import uuid
 from roles.utils import submit
 
 architecture = {
-    'defaults': {'time': '00:05:00'},
+    'defaults': {'time': '02:00:00'},
     'edges': [
         {
             'mem': 1,
@@ -47,7 +47,7 @@ def allocate_resources(
 
     num_edges = len(architecture['edges'])
     num_clients = sum(len(edge['clients']) for edge in architecture['edges'])
-    t_time = architecture.get('defaults', {}).get('time', '00:05:00')
+    t_time = architecture.get('defaults', {}).get('time', '02:00:00')
 
     for edge_index, edge in enumerate(architecture['edges']):
         edge_id = uuid.uuid4()

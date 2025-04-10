@@ -10,7 +10,7 @@ import uuid
 from roles.utils import submit
 
 architecture = {
-    'defaults': {'time': '00:05:00'},
+    'defaults': {'time': '02:00:00'},
     'clients': [
         {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
         {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
@@ -32,7 +32,7 @@ def allocate_resources(
     jobs = set()
 
     num_clients = len(architecture['clients'])
-    t_time = architecture.get('defaults', {}).get('time', '00:05:00')
+    t_time = architecture.get('defaults', {}).get('time', '02:00:00')
 
     for client_index, client in enumerate(architecture['clients']):
         device_id = uuid.uuid4()

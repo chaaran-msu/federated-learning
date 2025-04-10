@@ -29,7 +29,7 @@ start_time = time.time()
 # Set system architecture
 architecture = sys.argv[1]
 num_rounds = int(sys.argv[2])
-num_edge_server_rounds = int(sys.argv[3])
+num_edge_client_rounds = int(sys.argv[3])
 
 if architecture == 'traditional_fl':
     allocate_resources = allocate_resources_traditional_fl
@@ -48,13 +48,13 @@ app = Flask(__name__)
 
 # Create a custom logger
 logger = get_logger(
-    log_dir=os.path.join(dirname, f'../logs/{architecture}_{num_rounds}_{num_edge_server_rounds}'),
+    log_dir=os.path.join(dirname, f'../logs/{architecture}_{num_rounds}_{num_edge_client_rounds}'),
     device_id=device_id,
     role='server'
 )
 
 # Create results folder
-results_folder = os.path.join(dirname, f'../results/{architecture}_{num_rounds}_{num_edge_server_rounds}')
+results_folder = os.path.join(dirname, f'../results/{architecture}_{num_rounds}_{num_edge_client_rounds}')
 os.makedirs(results_folder, exist_ok=True)
 
 # Results file path
@@ -74,7 +74,7 @@ data_store = {
 jobs, num_devices = allocate_resources(
     main_server_id=device_id,
     main_server_address=server_address,
-    architecture_name=f'{architecture}_{num_rounds}_{num_edge_server_rounds}'
+    architecture_name=f'{architecture}_{num_rounds}_{num_edge_client_rounds}'
 )
 
 @app.route("/", methods=["GET"])

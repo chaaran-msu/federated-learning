@@ -18,7 +18,7 @@ from traininig.utils.parameters import load_serialized_parameters, get_serialize
 from traininig.utils.train import train
 from traininig.utils.test import test
 from aggregation.aggregate import aggregate
-from traininig.start_training import start_training_server
+from traininig.start_training import start_training_server, start_training_edge
 
 # Initialize model
 model = Baseline()
@@ -187,12 +187,17 @@ def train_round_client(
     logger.info('Sent to edge server for aggregation from client')
 
 def train_round_edge(
+    local_address,
+    num_edge_client_rounds,
+    round_clients,
     round_data,
     server_address,
     device_id,
     num_clients,
     partition_ids,
     batch_size,
+    learning_rate,
+    num_epochs,
     round_num,
     logger,
     results_file_path
@@ -239,10 +244,31 @@ def train_round_edge(
     with open(results_file_path, 'a') as file:
         file.write(f'{round_num},{test_data["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]}' + '\n') 
 
-    # Send parameters up the hierarchy        
-    requests.post(f"http://{server_address}/aggregate", json=data)
+    if round_num % num_edge_client_rounds == 0:
+        # Send parameters up the hierarchy        
+        requests.post(f"http://{server_address}/aggregate", json=data)
 
-    logger.info('Sent to aggregation from edge server to main server')
+        logger.info('Sent to aggregation from edge server to main server')
+    else:
+        # Reset current training round data
+        requests.post(f"http://{local_address}/reset")
+
+        # Start next round of training in clients
+        training_data = {
+            'batch_size': batch_size,
+            'learning_rate': learning_rate,
+            'num_epochs': num_epochs,
+            'parameters': aggregated_parameters
+        }
+
+        
+        start_training_edge(
+            round_clients=round_clients,
+            training_data=training_data,
+            logger=logger
+        )
+
+        logger.info('Started next round of training')
 
 def train_round_server(
     main_server_address,

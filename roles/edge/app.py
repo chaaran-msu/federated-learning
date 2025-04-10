@@ -22,6 +22,7 @@ device_id = sys.argv[1]
 server_id = sys.argv[2]
 main_server_address = sys.argv[3]
 architecture = sys.argv[4]
+num_edge_client_rounds = int(sys.argv[5])
 
 # Sample data storage (in-memory)
 data_store = {
@@ -111,17 +112,15 @@ def create_app():
     def start_training():
         data = request.json
 
-        batch_size = data.get('batch_size', None)
-        learning_rate = data.get('learning_rate', None)
-        num_epochs = data.get('num_epochs', None)
+        data_store['batch_size'] = data.get('batch_size', None)
+        data_store['learning_rate'] = data.get('learning_rate', None)
+        data_store['num_epochs'] = data.get('num_epochs', None)
         parameters = data.get('parameters', None)
 
-        data_store['batch_size'] = batch_size
-
         training_data = {
-            'batch_size': batch_size,
-            'learning_rate': learning_rate,
-            'num_epochs': num_epochs,
+            'batch_size': data_store['batch_size'],
+            'learning_rate': data_store['learning_rate'],
+            'num_epochs': data_store['num_epochs'],
             'parameters': parameters
         }
 
@@ -129,7 +128,7 @@ def create_app():
         data_store['current_round_clients'] = data_store['clients']
 
         # Reset data from previous round
-        data_store['current_round_data'] = {}
+        reset()
 
         # Start Training signal for clients
         logger.info('Starting training from edge')
@@ -171,18 +170,31 @@ def create_app():
             thread = threading.Thread(
                 target=train_round_edge,
                 args=[
+                    local_address,
+                    num_edge_client_rounds,
+                    data_store['current_round_clients'],
                     data_store['current_round_data'],
                     data_store['server_address'],
                     data_store['id'],
                     data_store['num_clients'],
                     data_store['partition_ids'],
                     data_store['batch_size'],
+                    data_store['learning_rate'],
+                    data_store['num_epochs'],
                     round_num,
                     logger,
                     results_file_path
                 ]
             )
             thread.start()
+
+        return 'OK'
+    
+    # Reset round training data
+    @app.route("/reset", methods=["POST"])
+    def reset():
+        data_store['current_round_data'] = {}
+        logger.info('Reset previous round data')
 
         return 'OK'
 

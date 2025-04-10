@@ -19,6 +19,7 @@ local_address = get_local_address(port)
 device_id = sys.argv[1]
 server_id = sys.argv[2]
 main_server_address = sys.argv[3]
+architecture = sys.argv[4]
 
 # Sample data storage (in-memory)
 data_store = {
@@ -44,7 +45,7 @@ def create_app():
     )
 
     # Create results folder
-    results_folder = os.path.join(dirname, '../results')
+    results_folder = os.path.join(dirname, f'../results/{architecture}')
     os.makedirs(results_folder, exist_ok=True)
 
     # Results file path

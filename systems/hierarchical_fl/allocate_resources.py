@@ -35,7 +35,8 @@ architecture = {
 
 def allocate_resources(
     main_server_id,
-    main_server_address
+    main_server_address,
+    architecture
 ):
     # Submit jobs to allocate resources
     jobs = set()
@@ -61,6 +62,7 @@ def allocate_resources(
                 mem=mem, 
                 cpu=cpu, 
                 cluster=cluster,
+                architecture=architecture
             )
         )
         print(f"Job submitted for edge {edge_index+1}")

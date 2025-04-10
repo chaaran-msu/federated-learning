@@ -71,7 +71,7 @@ def registration(
     clients,
     current_round_clients
 ):
-    # Now, we send a request to each edge to inform it of its assigned clients
+    # Inform the edge about the main server
     for edge_id in edges:
         edge_address = edges[edge_id]['address']
         server_id = edges[edge_id]['server_id']
@@ -93,11 +93,11 @@ def registration(
 
                 # Check if the request was successful
                 if edge_res.status_code == 200:
-                    print(f"Successfully bound client {client_address} to edge {edge_address}")
+                    print(f"Successfully bound client {edge_address} to edge {main_server_address}")
                 else:
-                    print(f"Failed to bind client {client_address} to edge {edge_address}")
+                    print(f"Failed to bind client {edge_address} to edge {main_server_address}")
             except requests.exceptions.RequestException as e:
-                print(f"Error while trying to bind client {client_address} to edge {edge_address}: {e}")
+                print(f"Error while trying to bind client {edge_address} to edge {main_server_address}: {e}")
 
 
     for client_idx, client_id in enumerate(clients):

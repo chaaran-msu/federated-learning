@@ -42,7 +42,7 @@ def create_app():
 
     # Create a custom logger
     logger = get_logger(
-        log_dir=os.path.join(dirname, '../logs'),
+        log_dir=os.path.join(dirname, f'../logs/{architecture}'),
         device_id=device_id,
         role='edge'
     )

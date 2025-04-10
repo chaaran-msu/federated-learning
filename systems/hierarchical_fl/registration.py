@@ -93,11 +93,11 @@ def registration(
 
                 # Check if the request was successful
                 if edge_res.status_code == 200:
-                    print(f"Successfully bound client {edge_address} to edge {main_server_address}")
+                    print(f"Successfully bound edge {edge_address} to server {main_server_address}")
                 else:
-                    print(f"Failed to bind client {edge_address} to edge {main_server_address}")
+                    print(f"Failed to bind edge {edge_address} to server {main_server_address}")
             except requests.exceptions.RequestException as e:
-                print(f"Error while trying to bind client {edge_address} to edge {main_server_address}: {e}")
+                print(f"Error while trying to bind edge {edge_address} to server {main_server_address}: {e}")
 
 
     for client_idx, client_id in enumerate(clients):

@@ -151,6 +151,7 @@ def aggregate_clients():
         thread = threading.Thread(
             target=train_round_server,
             args=[
+                server_address,
                 num_rounds,
                 data_store['current_round_data'],
                 data_store['current_round_clients'],

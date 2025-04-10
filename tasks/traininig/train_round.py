@@ -246,6 +246,7 @@ def train_round_edge(
     logger.info('Sent to aggregation from edge server to main server')
 
 def train_round_server(
+    main_server_address,
     num_rounds,
     round_data,
     round_clients,
@@ -305,13 +306,15 @@ def train_round_server(
     with open(results_file_path, 'a') as file:
         file.write(f'{round_num},{test_data["accuracy"]},{test_data_global["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]},{computational_latency["global_testing_time"]}' + '\n') 
 
+    # If current round is less than num_rounds, start next round
     if round_num < num_rounds:
         # Start Training for next round
         start_training_server(
             clients=round_clients,
             parameters=aggregated_parameters
         )
+    # Else, stop training
     else:
-        stop()
+        requests.post(f"http://{main_server_address}/stop")
 
     print('Started next round from server')

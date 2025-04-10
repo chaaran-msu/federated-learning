@@ -95,7 +95,7 @@ def allocate_resources(
                 mem=mem, 
                 cpu=cpu, 
                 cluster=cluster,
-                architecture_name=architecture_name,
+                architecture=architecture_name,
                 num_edge_client_rounds=num_edge_client_rounds
             )
         )
@@ -120,7 +120,8 @@ def allocate_resources(
                     mem=mem, 
                     cpu=cpu, 
                     cluster=cluster,
-                    architecture_name=architecture_name
+                    architecture=architecture_name,
+                    num_edge_client_rounds=num_edge_client_rounds
                 )
             )
             print(f"Job submitted for edge second level {edge_index_sl+1}")
@@ -144,7 +145,8 @@ def allocate_resources(
                         mem=mem, 
                         cpu=cpu, 
                         cluster=cluster,
-                        architecture_name=architecture_name
+                        architecture=architecture_name,
+                        num_edge_client_rounds=num_edge_client_rounds
                     )
                 )
 

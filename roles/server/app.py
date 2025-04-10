@@ -24,7 +24,7 @@ from systems.hierarchical_fl.registration import registration as registration_hi
 from tasks.traininig.train_round import train_round_server
 
 # Set system architecture
-architecture = 'traditional_fl'
+architecture = sys.argv[1]
 
 if architecture == 'traditional_fl':
     allocate_resources = allocate_resources_traditional_fl

@@ -19,7 +19,8 @@ def submit(
     mem, 
     cpu, 
     cluster,
-    architecture
+    architecture,
+    num_edge_client_rounds
 ):
     script = f"""#!/bin/bash
 #SBATCH --nodes=1
@@ -32,7 +33,7 @@ def submit(
 source ~/.venv/fl/bin/activate
 cd ../../
 pwd
-srun python {'roles/client/app.py' if role == 'client' else 'roles/edge/app.py'} {device_id} {server_id} {main_server_address} {architecture}"""
+srun python {'roles/client/app.py' if role == 'client' else 'roles/edge/app.py'} {device_id} {server_id} {main_server_address} {architecture} {num_edge_client_rounds}"""
 
     filename = f"{device_id}.sh"
     with open(filename, 'w') as file:

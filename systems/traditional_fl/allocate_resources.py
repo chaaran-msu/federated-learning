@@ -26,7 +26,8 @@ architecture = {
 def allocate_resources(
     main_server_id,
     main_server_address,
-    architecture_name
+    architecture_name,
+    num_edge_client_rounds
 ):
     # Submit jobs to allocate resources
     jobs = set()

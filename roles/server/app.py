@@ -74,7 +74,8 @@ data_store = {
 jobs, num_devices = allocate_resources(
     main_server_id=device_id,
     main_server_address=server_address,
-    architecture_name=f'{architecture}_{num_rounds}_{num_edge_client_rounds}'
+    architecture_name=f'{architecture}_{num_rounds}_{num_edge_client_rounds}',
+    num_edge_client_rounds=num_edge_client_rounds
 )
 
 @app.route("/", methods=["GET"])

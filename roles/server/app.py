@@ -132,6 +132,7 @@ def aggregate_clients():
     parameters = data.get('parameters', None)
     accuracy = data.get('accuracy', None)
     num_samples = data.get('num_samples', None)
+    round_num = data.get('round', None)
     
     data_store['current_round_data'][device_id] = {
         'parameters': parameters,
@@ -151,6 +152,7 @@ def aggregate_clients():
                 num_devices['clients'],
                 list(range(num_devices['clients'])),
                 16,
+                round_num,
                 logger,
                 results_file_path
             ]

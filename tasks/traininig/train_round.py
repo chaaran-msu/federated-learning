@@ -178,6 +178,7 @@ def train_round_edge(
     num_clients,
     partition_ids,
     batch_size,
+    round_num,
     logger,
     results_file_path
 ):
@@ -193,7 +194,8 @@ def train_round_edge(
     data = {
         'id': device_id,
         'num_samples': total_num_samples,
-        'parameters': aggregated_parameters
+        'parameters': aggregated_parameters,
+        'round': round_num,
     }
 
     test_data = test_model(
@@ -207,7 +209,7 @@ def train_round_edge(
 
     # Save results in text file for analysis
     with open(results_file_path, 'a') as file:
-        file.write(f'{round_data["round"]},{test_data["accuracy"]}' + '\n') 
+        file.write(f'{round_num},{test_data["accuracy"]}' + '\n') 
 
     # Send parameters up the hierarchy        
     requests.post(f"http://{server_address}/aggregate", json=data)
@@ -220,6 +222,7 @@ def train_round_server(
     num_clients,
     partition_ids,
     batch_size,
+    round_num,
     logger,
     results_file_path
 ):
@@ -251,7 +254,7 @@ def train_round_server(
 
     # Save results in text file for analysis
     with open(results_file_path, 'a') as file:
-        file.write(f'{round_data["round"]},{test_data["accuracy"]},{test_data_global["accuracy"]}' + '\n') 
+        file.write(f'{round_num},{test_data["accuracy"]},{test_data_global["accuracy"]}' + '\n') 
 
     # Start Training for next round
     start_training_server(

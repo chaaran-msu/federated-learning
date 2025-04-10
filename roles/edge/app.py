@@ -156,6 +156,7 @@ def create_app():
         parameters = data.get('parameters', None)
         accuracy = data.get('accuracy', None)
         num_samples = data.get('num_samples', None)
+        round_num = data.get('round', None)
 
         data_store['current_round_data'][device_id] = {
             'parameters': parameters,
@@ -176,6 +177,7 @@ def create_app():
                     data_store['num_clients'],
                     data_store['partition_ids'],
                     data_store['batch_size'],
+                    round_num,
                     logger,
                     results_file_path
                 ]

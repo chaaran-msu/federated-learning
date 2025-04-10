@@ -12,7 +12,8 @@ from tasks.traininig.start_training import start_training_server
 def registration(
     server_id,
     server_address,
-    clients
+    clients,
+    current_round_clients
 ):
     for client_idx, client_id in enumerate(clients):
         client_address = clients[client_id]['address']
@@ -44,7 +45,7 @@ def registration(
     # Start first round of training
     # Parameters will be initialized randomly
     start_training_server(
-        clients=clients,
+        clients=current_round_clients,
         first_round=True
     )
 

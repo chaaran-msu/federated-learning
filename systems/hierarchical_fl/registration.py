@@ -68,7 +68,8 @@ def registration(
     main_server_id,
     main_server_address,
     edges, 
-    clients
+    clients,
+    current_round_clients
 ):
     # Now, we send a request to each edge to inform it of its assigned clients
     for edge_id in edges:
@@ -140,7 +141,7 @@ def registration(
     # Start first round of training
     # Parameters will be initialized randomly
     start_training_server(
-        clients=edges,
+        clients=current_round_clients,
         first_round=True
     )
 

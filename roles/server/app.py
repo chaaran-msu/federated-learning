@@ -28,7 +28,7 @@ start_time = time.time()
 
 # Set system architecture
 architecture = sys.argv[1]
-num_rounds = sys.argv[2]
+num_rounds = int(sys.argv[2])
 
 if architecture == 'traditional_fl':
     allocate_resources = allocate_resources_traditional_fl
@@ -136,7 +136,7 @@ def aggregate_clients():
     parameters = data.get('parameters', None)
     accuracy = data.get('accuracy', None)
     num_samples = data.get('num_samples', None)
-    round_num = data.get('round', None)
+    round_num = int(data.get('round', None))
     
     data_store['current_round_data'][device_id] = {
         'parameters': parameters,

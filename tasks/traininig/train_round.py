@@ -245,30 +245,30 @@ def train_round_edge(
         with open(results_file_path, 'a') as file:
             file.write(f'{round_num},{test_data["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]}' + '\n') 
 
-        if round_num % num_edge_client_rounds == 0:
-            # Send parameters up the hierarchy        
-            requests.post(f"http://{server_address}/aggregate", json=data)
+    if round_num % num_edge_client_rounds == 0:
+        # Send parameters up the hierarchy        
+        requests.post(f"http://{server_address}/aggregate", json=data)
 
-            logger.info('Sent to aggregation from edge server to main server')
-        else:
-            # Reset current training round data
-            requests.post(f"http://{local_address}/reset")
+        logger.info('Sent to aggregation from edge server to main server')
+    else:
+        # Reset current training round data
+        requests.post(f"http://{local_address}/reset")
 
-            # Start next round of training in clients
-            training_data = {
-                'batch_size': batch_size,
-                'learning_rate': learning_rate,
-                'num_epochs': num_epochs,
-                'parameters': aggregated_parameters
-            }
+        # Start next round of training in clients
+        training_data = {
+            'batch_size': batch_size,
+            'learning_rate': learning_rate,
+            'num_epochs': num_epochs,
+            'parameters': aggregated_parameters
+        }
 
-            start_training_edge(
-                round_clients=round_clients,
-                training_data=training_data,
-                logger=logger
-            )
+        start_training_edge(
+            round_clients=round_clients,
+            training_data=training_data,
+            logger=logger
+        )
 
-            logger.info('Started next round of training')
+        logger.info('Started next round of training')
 
 def train_round_server(
     main_server_address,

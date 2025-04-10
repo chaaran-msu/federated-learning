@@ -1,4 +1,3 @@
-import uuid
 import socket
 import subprocess
 
@@ -11,9 +10,16 @@ def get_local_address(port):
     local = socket.gethostbyname(socket.gethostname()) + ":" + str(port)
     return local
 
-def submit(time, mem, cpu, cluster, server, role, edge_index, client_index=0):
-    device_id = uuid.uuid4()
-
+def submit(
+    device_id,
+    server_id,
+    main_server_address,
+    role,
+    time, 
+    mem, 
+    cpu, 
+    cluster, 
+):
     script = f"""#!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --time={time}
@@ -25,7 +31,7 @@ def submit(time, mem, cpu, cluster, server, role, edge_index, client_index=0):
 source ~/.venv/fl/bin/activate
 cd ../../
 pwd
-srun python {'roles/client/app.py' if role == 'client' else 'roles/edge/app.py'} {edge_index} {client_index} {server} {device_id}> output_{'client' if role == 'client' else 'edge'}{edge_index}{client_index}.log"""
+srun python {'roles/client/app.py' if role == 'client' else 'roles/edge/app.py'} {device_id} {server_id} {main_server_address}"""
 
     filename = f"{device_id}.sh"
     with open(filename, 'w') as file:

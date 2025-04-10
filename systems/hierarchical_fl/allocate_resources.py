@@ -1,0 +1,95 @@
+import os
+import sys
+
+dirname = os.path.abspath(os.path.dirname(__file__))
+
+sys.path.append(os.path.join(dirname))
+
+import uuid
+
+from roles.utils import submit
+
+architecture = {
+    'defaults': {'time': '00:05:00'},
+    'edges': [
+        {
+            'mem': 1,
+            'cpu': 1,
+            'cluster': 'intel18',
+            'clients': [
+                {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
+                {'mem': 1, 'cpu': 1, 'cluster': 'intel18'}
+            ]
+        },
+        {
+            'mem': 1,
+            'cpu': 1,
+            'cluster': 'intel18',
+            'clients': [
+                {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
+                {'mem': 1, 'cpu': 1, 'cluster': 'intel18'}
+            ]
+        }
+    ]
+}
+
+def allocate_resources(
+    main_server_id,
+    main_server_address
+):
+    # Submit jobs to allocate resources
+    jobs = set()
+
+    num_edges = len(architecture['edges'])
+    num_clients = sum(len(edge['clients']) for edge in architecture['edges'])
+    t_time = architecture.get('defaults', {}).get('time', '00:05:00')
+
+    for edge_index, edge in enumerate(architecture['edges']):
+        edge_id = uuid.uuid4()
+
+        mem = edge.get('mem', 1)
+        cpu = edge.get('cpu', 1)
+        cluster = edge.get('cluster', 'intel18')
+
+        jobs.add(
+            submit(
+                device_id=edge_id,
+                server_id=main_server_id,
+                main_server_address=main_server_address,
+                role='edge',
+                time=t_time, 
+                mem=mem, 
+                cpu=cpu, 
+                cluster=cluster,
+            )
+        )
+        print(f"Job submitted for edge {edge_index+1}")
+
+        for client_index, client in enumerate(edge['clients']):
+            client_id = uuid.uuid4()
+
+            mem = client.get('mem', 1)
+            cpu = client.get('cpu', 1)
+            cluster = client.get('cluster', 'intel18')
+
+            jobs.add(
+                submit(
+                    device_id=client_id,
+                    server_id=edge_id,
+                    main_server_address=main_server_address,
+                    role='client',
+                    time=t_time, 
+                    mem=mem, 
+                    cpu=cpu, 
+                    cluster=cluster,
+                )
+            )
+
+            print(f"Job submitted for client {client_index+1}")
+
+    num_devices = {
+        'edges': num_edges,
+        'clients': num_clients
+    }
+
+    return jobs, num_devices

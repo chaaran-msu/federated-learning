@@ -9,7 +9,9 @@ sys.path.append(os.path.join(dirname, '../../'))
 import requests
 from tasks.traininig.start_training import start_training_server
 
-def bind_clients_edges(
+def registration(
+    main_server_id,
+    main_server_address,
     edges, 
     clients
 ):
@@ -17,12 +19,38 @@ def bind_clients_edges(
     for edge in edges:
         edge_id = edge['id']
         edge_address = edge['address']
+        server_id = edge['server_id']
+
+        # Inform the edge server about their server
+        if server_id == main_server_id:
+            # Construct the URL to inform the edge about its server
+            edge_url = f'http://{edge_address}/register_server'
+
+            # Send the POST request to the edge to register the server
+            try:
+                edge_res = requests.post(
+                    edge_url,
+                    json={
+                        'id': main_server_id,
+                        'address': main_server_address
+                    }
+                )
+
+                # Check if the request was successful
+                if edge_res.status_code == 200:
+                    print(f"Successfully bound client {client_address} to edge {edge_address}")
+                else:
+                    print(f"Failed to bind client {client_address} to edge {edge_address}")
+            except requests.exceptions.RequestException as e:
+                print(f"Error while trying to bind client {client_address} to edge {edge_address}: {e}")
+
 
         for client_idx, client in enumerate(clients):
             client_id = client['id']
             client_address = client['address']
+            client_server_id = client['server_id']
 
-            if edge['edge_index'] == client['edge_index']:  # If the edge is responsible for the client
+            if edge_id == client_server_id:  # If the edge is responsible for the client
                 # Construct the URL to inform the edge about its client
                 edge_url = f'http://{edge_address}/register_client'
 
@@ -45,7 +73,7 @@ def bind_clients_edges(
                     print(f"Error while trying to bind client {client_address} to edge {edge_address}: {e}")
 
                 # Construct the URL to inform the client about its assigned edge
-                client_url = f'http://{client_address}/bind'
+                client_url = f'http://{client_address}/register_server'
 
                 # Send the GET request to the client to inform it of its assigned edge
                 try:

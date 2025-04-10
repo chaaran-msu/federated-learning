@@ -16,10 +16,9 @@ from tasks.traininig.train_round import train_round_client
 port = get_local_port()
 local_address = get_local_address(port)
 
-edge_index = sys.argv[1]
-client_index = sys.argv[2]
+device_id = sys.argv[1]
+server_id = sys.argv[2]
 main_server_address = sys.argv[3]
-device_id = sys.argv[4]
 
 # Sample data storage (in-memory)
 data_store = {
@@ -47,7 +46,7 @@ def create_app():
             'id': device_id,
             'address': local_address,
             'role': 'client',
-            'edge_index': edge_index
+            'server_id': server_id
         }
 
         requests.post(
@@ -59,8 +58,8 @@ def create_app():
     def home():
         return jsonify({"message": "Client API!"})
 
-    @app.route('/bind', methods=["POST"])
-    def bind():
+    @app.route('/register_server', methods=["POST"])
+    def register_server():
         data = request.json
 
         data_store['server_id'] = data.get('server_id', None)

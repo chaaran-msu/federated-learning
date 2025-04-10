@@ -18,15 +18,15 @@ from tasks.traininig.start_training import start_training_edge
 port = get_local_port()
 local_address = get_local_address(port)
 
-edge_index = sys.argv[1]
-client_index = sys.argv[2]
+device_id = sys.argv[1]
+server_id = sys.argv[2]
 main_server_address = sys.argv[3]
-device_id = sys.argv[4]
 
 # Sample data storage (in-memory)
 data_store = {
     'id': device_id,
-    'server_address': main_server_address,
+    'server_id': '',
+    'server_address': '',
     'clients': [], # Each client will have it's address
     'current_round_clients': [], # Client Index in 'clients' list
     'current_round_data': {}, # Parameters for current round
@@ -46,9 +46,10 @@ def create_app():
     # Register with main server
     with app.app_context():
         data = {
+            'id': device_id,
             'address': local_address,
             'role': 'edge',
-            'edge_index': edge_index
+            'server_id': server_id
         }
 
         requests.post(
@@ -59,6 +60,22 @@ def create_app():
     @app.route("/", methods=["GET"])
     def home():
         return jsonify({"message": "Edge Server API!"})
+    
+    # Register Server
+    @app.route("/register_server", methods=["POST"])
+    def register_server():
+        data = request.json
+
+        id = data.get('id', None)
+        address = data.get('address', None)
+
+        # Add client information to data store
+        data_store['server_id'] = id
+        data_store['server_address'] = address
+
+        logger.info(f'Server address: {data_store["server_address"]}')
+
+        return 'OK'
     
     # Register Clients
     @app.route("/register_client", methods=["POST"])

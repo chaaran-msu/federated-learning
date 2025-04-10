@@ -14,15 +14,29 @@ import uuid
 
 from roles.utils import get_local_address, get_local_port
 from roles.logging import get_logger
-from allocate_resources import allocate_resources
-from communication import bind_clients_edges
+
+from systems.traditional_fl.allocate_resources import allocate_resources as allocate_resources_traditional_fl
+from systems.hierarchical_fl.allocate_resources import allocate_resources as allocate_resources_hierarchical_fl
+
+from systems.traditional_fl.registration import registration as registration_traditional_fl
+from systems.hierarchical_fl.registration import registration as registration_hierarchical_fl
+
 from tasks.traininig.train_round import train_round_server
+
+# Set system architecture
+architecture = 'traditional_fl'
+
+if architecture == 'traditional_fl':
+    allocate_resources = allocate_resources_traditional_fl
+    registration = registration_traditional_fl
+elif architecture == 'hierarchical_fl':
+    allocate_resources = allocate_resources_hierarchical_fl
+    registration = registration_hierarchical_fl
 
 # Obtain the server address
 server_port = get_local_port()
 server_address = get_local_address(server_port)
-server_id = uuid.uuid4()
-
+device_id = uuid.uuid4()
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -30,21 +44,23 @@ app = Flask(__name__)
 # Create a custom logger
 logger = get_logger(
     log_dir=os.path.join(dirname, '../logs'),
-    device_id=server_id,
+    device_id=device_id,
     role='server'
 )
 
 # Sample data storage (in-memory)
 data_store = {
-    'clients': [], # Each client will have it's address
-    'edges': [],
+    'all_clients': {}, # Each client will have it's address
+    'all_edges': {},
+    'clients': [],
     'current_round_clients': [], # Client Index in 'clients' list,
     'current_round_data': {}
 }
 
 # Allocate resources
-jobs, num_edges, num_clients = allocate_resources(
-    server_address=server_address
+jobs, num_devices = allocate_resources(
+    main_server_id=device_id,
+    main_server_address=server_address
 )
 
 @app.route("/", methods=["GET"])
@@ -59,29 +75,41 @@ def register_client():
     id = data.get('id', None)
     address = data.get('address', None)
     role = data.get('role', None)
-    edge_index = data.get('edge_index', None)
+    server_id = data.get('server_id', None)
 
-    # Add client information to data store
-    if role == 'client':
+    if server_id == device_id:
         data_store['clients'].append({
             'id': id,
             'address': address,
-            'edge_index': edge_index
+            'server_id': server_id
         })
-    elif role == 'edge':
-        data_store['edges'].append({
-            'id': id,
+
+    # Add client information to data store
+    if role == 'client':
+        data_store['all_clients'][id] = {
             'address': address,
-            'edge_index': edge_index
-        })
+            'server_id': server_id
+        }
+    elif role == 'edge':
+        data_store['all_edges'][id] = {
+            'address': address,
+            'server_id': server_id
+        }
 
     logger.info("test:")
-    logger.info(data_store['edges'])
-    logger.info(data_store['clients'])
+    logger.info(data_store['all_edges'])
+    logger.info(data_store['all_clients'])
 
-    if len(data_store['edges']) == num_edges and len(data_store['clients']) == num_clients:
-        data_store['current_round_clients'] = data_store['edges']
-        threading.Thread(target=bind_clients_edges, args=[data_store['edges'], data_store['clients']], daemon=True).start()
+    if architecture == 'traditional_fl':
+        if len(data_store['all_clients']) == num_devices['clients']:
+            # Client Selection in server
+            data_store['current_round_clients'] = data_store['clients']
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients']], daemon=True).start()
+    elif architecture == 'hierarchical_fl':
+        if len(data_store['all_edges']) == num_devices['edges'] and len(data_store['all_clients']) == num_devices['clients']:
+            # Client Selection in server
+            data_store['current_round_clients'] = data_store['clients']
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients']], daemon=True).start()
 
     return 'OK'
 

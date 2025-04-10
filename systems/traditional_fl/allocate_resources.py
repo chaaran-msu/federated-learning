@@ -16,10 +16,6 @@ architecture = {
         {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
         {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
         {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
     ]
 }
 

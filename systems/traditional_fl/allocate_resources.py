@@ -27,7 +27,7 @@ def allocate_resources(
     jobs = set()
 
     num_clients = len(architecure['clients'])
-    t_time = config.data.get('defaults', {}).get('time', '00:05:00')
+    t_time = architecure.get('defaults', {}).get('time', '00:05:00')
 
     for client_index, client in enumerate(architecure['clients']):
         device_id = uuid.uuid4()

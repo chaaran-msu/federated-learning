@@ -125,6 +125,11 @@ def register_client():
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
             threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
+    elif architecture == 'multi_hfl':
+        if len(data_store['all_edges']) == num_devices['edges'] and len(data_store['all_clients']) == num_devices['clients']:
+            # Client Selection in server
+            data_store['current_round_clients'] = data_store['clients']
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
 
     return 'OK'
 

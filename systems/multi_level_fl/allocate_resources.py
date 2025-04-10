@@ -68,13 +68,14 @@ architecture = {
 def allocate_resources(
     main_server_id,
     main_server_address,
-    architecture_name
+    architecture_name,
+    num_edge_client_rounds
 ):
     # Submit jobs to allocate resources
     jobs = set()
 
-    num_edges = len(architecture['edges'])
-    num_clients = sum(len(edge['clients']) for edge in architecture['edges'])
+    num_edges = 0
+    num_clients = 0
     t_time = architecture.get('defaults', {}).get('time', '00:05:00')
 
     for edge_index_fl, edge_fl in enumerate(architecture['edges']):
@@ -94,10 +95,13 @@ def allocate_resources(
                 mem=mem, 
                 cpu=cpu, 
                 cluster=cluster,
-                architecture_name=architecture_name
+                architecture_name=architecture_name,
+                num_edge_client_rounds=num_edge_client_rounds
             )
         )
         print(f"Job submitted for edge first level {edge_index_fl+1}")
+
+        num_edges += 1
 
         for edge_index_sl, edge_sl in enumerate(edge_fl['edges']):
             edge_id_sl = uuid.uuid4()
@@ -121,6 +125,8 @@ def allocate_resources(
             )
             print(f"Job submitted for edge second level {edge_index_sl+1}")
 
+            num_edges += 1
+
             for client_index, client in enumerate(edge_sl['clients']):
                 client_id = uuid.uuid4()
 
@@ -143,6 +149,8 @@ def allocate_resources(
                 )
 
                 print(f"Job submitted for client {client_index+1}")
+
+                num_clients += 1
 
     num_devices = {
         'edges': num_edges,

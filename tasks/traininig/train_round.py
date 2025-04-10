@@ -4,6 +4,7 @@ import sys
 dirname = os.path.abspath(os.path.dirname(__file__))
 
 sys.path.append(os.path.join(dirname, '../'))
+sys.path.append(os.path.join(dirname, '../../'))
 
 import torch
 from torch import nn
@@ -17,6 +18,7 @@ from traininig.utils.train import train
 from traininig.utils.test import test
 from aggregation.aggregate import aggregate
 from traininig.start_training import start_training_server
+from roles.server.app import stop
 
 # Initialize model
 model = Baseline()
@@ -217,6 +219,7 @@ def train_round_edge(
     logger.info('Sent to aggregation from edge server to main server')
 
 def train_round_server(
+    num_rounds,
     round_data,
     round_clients,
     num_clients,
@@ -256,10 +259,13 @@ def train_round_server(
     with open(results_file_path, 'a') as file:
         file.write(f'{round_num},{test_data["accuracy"]},{test_data_global["accuracy"]}' + '\n') 
 
-    # Start Training for next round
-    start_training_server(
-        clients=round_clients,
-        parameters=aggregated_parameters
-    )
+    if round_num < num_rounds:
+        # Start Training for next round
+        start_training_server(
+            clients=round_clients,
+            parameters=aggregated_parameters
+        )
+    else:
+        stop()
 
     print('Started next round from server')

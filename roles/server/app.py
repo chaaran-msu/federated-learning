@@ -11,6 +11,7 @@ import requests
 import subprocess
 import threading
 import uuid
+import time
 
 from roles.utils import get_local_address, get_local_port
 from roles.logging import get_logger
@@ -23,8 +24,11 @@ from systems.hierarchical_fl.registration import registration as registration_hi
 
 from tasks.traininig.train_round import train_round_server
 
+start_time = time.time()
+
 # Set system architecture
 architecture = sys.argv[1]
+num_rounds = sys.argv[2]
 
 if architecture == 'traditional_fl':
     allocate_resources = allocate_resources_traditional_fl
@@ -147,6 +151,7 @@ def aggregate_clients():
         thread = threading.Thread(
             target=train_round_server,
             args=[
+                num_rounds,
                 data_store['current_round_data'],
                 data_store['current_round_clients'],
                 num_devices['clients'],
@@ -169,6 +174,11 @@ def aggregate_clients():
 def stop():
     for id in jobs:
         subprocess.run(['scancel', id])
+
+    end_time = time.time()
+
+    logger.info(f'Total time: {end_time - start_time}')
+
     return f"Successfully canceled jobs"
 
 if __name__ == "__main__":

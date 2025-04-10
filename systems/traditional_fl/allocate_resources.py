@@ -7,7 +7,6 @@ sys.path.append(os.path.join(dirname))
 
 import uuid
 
-import config
 from roles.utils import submit
 
 architecure = {

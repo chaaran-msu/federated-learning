@@ -295,41 +295,42 @@ def train_round_server(
 
     print(f'Aggregated parameters in server using {total_num_samples} samples')
 
-    test_start_time = time.time()
+    if round_num % 5 == 0:
+        test_start_time = time.time()
 
-    test_data = test_model(
-        num_clients,
-        aggregated_parameters,
-        partition_ids,
-        batch_size,
-        "server",
-        logger
-    )
+        test_data = test_model(
+            num_clients,
+            aggregated_parameters,
+            partition_ids,
+            batch_size,
+            "server",
+            logger
+        )
 
-    test_end_time = time.time()
+        test_end_time = time.time()
 
-    test_global_start_time = time.time()
+        test_global_start_time = time.time()
 
-    test_data_global = test_model(
-        num_clients,
-        aggregated_parameters,
-        [0],
-        batch_size,
-        "server_global",
-        logger
-    )
+        test_data_global = test_model(
+            num_clients,
+            aggregated_parameters,
+            [0],
+            batch_size,
+            "server_global",
+            logger
+        )
 
-    test_global_end_time = time.time()
+        test_global_end_time = time.time()
 
-    computational_latency = {
-        'aggregation_time': aggregation_end_time - aggregation_start_time,
-        'testing_time': test_end_time - test_start_time,
-        'global_testing_time': test_global_end_time - test_global_start_time
-    }
+        computational_latency = {
+            'aggregation_time': aggregation_end_time - aggregation_start_time,
+            'testing_time': test_end_time - test_start_time,
+            'global_testing_time': test_global_end_time - test_global_start_time
+        }
 
-    # Save results in text file for analysis
-    with open(results_file_path, 'a') as file:
-        file.write(f'{round_num},{test_data["accuracy"]},{test_data_global["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]},{computational_latency["global_testing_time"]}' + '\n') 
+        # Save results in text file for analysis
+        with open(results_file_path, 'a') as file:
+            file.write(f'{round_num},{test_data["accuracy"]},{test_data_global["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]},{computational_latency["global_testing_time"]}' + '\n') 
 
     # If current round is less than num_rounds, start next round
     if round_num < num_rounds:

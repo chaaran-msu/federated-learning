@@ -10,7 +10,7 @@ from torch import nn
 from typing import List
 import requests
 
-from traininig.data.create_dataloaders import create_dataloaders_flower
+from traininig.data.create_dataloaders import create_dataloaders_flower, create_dataloaders_flower_multiple_partitions, create_global_test_dataloader
 from traininig.models.baseline import Baseline
 from traininig.utils.parameters import load_serialized_parameters, get_serialized_parameters
 from traininig.utils.train import train
@@ -81,6 +81,51 @@ def train_model(
 
     return round_data
 
+def test_model(
+    num_clients,
+    parameters,
+    partition_ids,
+    batch_size,
+    mode,
+    logger
+):
+    if mode == 'edge' or mode == 'server':
+        # Set up the dataloaders
+        trainloader, test_loader = create_dataloaders_flower_multiple_partitions(
+            num_clients=num_clients,
+            partition_id=partition_ids,
+            batch_size=batch_size
+        )
+    elif mode == 'server_global':
+        test_loader = create_global_test_dataloader(
+            num_clients=num_clients,
+            batch_size=batch_size
+        )
+
+    # Load model parameters
+    load_serialized_parameters(
+        model=model,
+        serialized_params=parameters
+    )
+
+    # Criterion
+    criterion = nn.CrossEntropyLoss()
+
+    # Testing
+    batch_losses, accuracy = test(
+        model=model,
+        dataloader=test_loader,
+        criterion=criterion
+    )
+
+    logger.info(f'Test Accuracy: {accuracy}')
+
+    round_data = {
+        'accuracy': accuracy,
+    }
+
+    return round_data
+
 def train_round_client(
     id: str,
     server_address: str,
@@ -130,7 +175,11 @@ def train_round_edge(
     round_data,
     server_address,
     device_id,
-    logger
+    num_clients,
+    partition_ids,
+    batch_size,
+    logger,
+    results_file_path
 ):
     # Aggregate parameters from all clients
     total_num_samples, aggregated_parameters = aggregate(
@@ -139,7 +188,7 @@ def train_round_edge(
         logger=logger
     )
 
-    print('Aggregated parameters in edge server')
+    logger.info(f'Aggregated parameters in edge server using {total_num_samples} samples')
 
     data = {
         'id': device_id,
@@ -147,15 +196,32 @@ def train_round_edge(
         'parameters': aggregated_parameters
     }
 
+    test_data = test_model(
+        num_clients,
+        aggregated_parameters,
+        partition_ids,
+        batch_size,
+        "edge",
+        logger
+    )
+
+    # Save results in text file for analysis
+    with open(results_file_path, 'a') as file:
+        file.write(f'{round_data["round"]},{test_data["accuracy"]}' + '\n') 
+
     # Send parameters up the hierarchy        
     requests.post(f"http://{server_address}/aggregate", json=data)
 
-    print('Sent to aggregation from edge server to main server')
+    logger.info('Sent to aggregation from edge server to main server')
 
 def train_round_server(
     round_data,
     round_clients,
-    logger
+    num_clients,
+    partition_ids,
+    batch_size,
+    logger,
+    results_file_path
 ):
     # Aggregate Parameters
     total_num_samples, aggregated_parameters = aggregate(
@@ -163,7 +229,29 @@ def train_round_server(
         algorithm='fed_avg',
         logger=logger
     )
-    print('Aggregated parameters in server')
+    print(f'Aggregated parameters in server using {total_num_samples} samples')
+
+    test_data = test_model(
+        num_clients,
+        aggregated_parameters,
+        partition_ids,
+        batch_size,
+        "server",
+        logger
+    )
+
+    test_data_global = test_model(
+        num_clients,
+        aggregated_parameters,
+        [0],
+        batch_size,
+        "server_global",
+        logger
+    )
+
+    # Save results in text file for analysis
+    with open(results_file_path, 'a') as file:
+        file.write(f'{round_data["round"]},{test_data["accuracy"]},{test_data_global["accuracy"]}' + '\n') 
 
     # Start Training for next round
     start_training_server(

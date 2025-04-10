@@ -48,6 +48,14 @@ logger = get_logger(
     role='server'
 )
 
+# Create results folder
+results_folder = os.path.join(dirname, f'../results/{architecture}')
+os.makedirs(results_folder, exist_ok=True)
+
+# Results file path
+results_file_path = os.path.join(results_folder, f'{device_id}_server.txt')
+
+
 # Sample data storage (in-memory)
 data_store = {
     'all_clients': {}, # Each client will have it's address
@@ -140,7 +148,11 @@ def aggregate_clients():
             args=[
                 data_store['current_round_data'],
                 data_store['current_round_clients'],
-                logger
+                num_devices['clients'],
+                list(range(num_devices['clients'])),
+                16,
+                logger,
+                results_file_path
             ]
         )
         thread.start()

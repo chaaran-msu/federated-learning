@@ -34,12 +34,12 @@ def create_dataloaders_flower(
     partition_train_test = partition_train_test.with_transform(apply_transforms)
 
     # Create the train/val loaders
-    trainloader = DataLoader(
+    train_loader = DataLoader(
         partition_train_test["train"], batch_size=batch_size, shuffle=True
     )
-    valloader = DataLoader(partition_train_test["test"], batch_size=batch_size)
+    val_loader = DataLoader(partition_train_test["test"], batch_size=batch_size)
 
-    return trainloader, valloader
+    return train_loader, val_loader
 
 def create_dataloaders_flower_multiple_partitions(
     num_clients: int,
@@ -74,10 +74,10 @@ def create_dataloaders_flower_multiple_partitions(
     combined_val_dataset = ConcatDataset(val_datasets)
 
     # Create DataLoaders
-    trainloader = DataLoader(combined_train_dataset, batch_size=batch_size, shuffle=True)
-    valloader = DataLoader(combined_val_dataset, batch_size=batch_size)
+    train_loader = DataLoader(combined_train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(combined_val_dataset, batch_size=batch_size)
 
-    return trainloader, valloader
+    return train_loader, val_loader
 
 def create_global_test_dataloader(
     num_clients: int,

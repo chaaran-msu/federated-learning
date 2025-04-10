@@ -7,6 +7,8 @@ sys.path.append(os.path.join(dirname))
 sys.path.append(os.path.join(dirname, '../../'))
 
 import requests
+from collections import defaultdict
+
 from tasks.traininig.start_training import start_training_server
 
 def inform_server(
@@ -71,38 +73,13 @@ def registration(
     clients,
     current_round_clients
 ):
-    # Inform the edge about the main server
-    for edge_id in edges:
-        edge_address = edges[edge_id]['address']
-        server_id = edges[edge_id]['server_id']
-
-        # Inform the edge server about their server
-        if server_id == main_server_id:
-            # Construct the URL to inform the edge about its server
-            edge_url = f'http://{edge_address}/register_server'
-
-            # Send the POST request to the edge to register the server
-            try:
-                edge_res = requests.post(
-                    edge_url,
-                    json={
-                        'id': main_server_id,
-                        'address': main_server_address
-                    }
-                )
-
-                # Check if the request was successful
-                if edge_res.status_code == 200:
-                    print(f"Successfully bound edge {edge_address} to server {main_server_address}")
-                else:
-                    print(f"Failed to bind edge {edge_address} to server {main_server_address}")
-            except requests.exceptions.RequestException as e:
-                print(f"Error while trying to bind edge {edge_address} to server {main_server_address}: {e}")
-
+    partition_ids = defaultdict(list)
 
     for client_idx, client_id in enumerate(clients):
         client_address = clients[client_id]['address']
         client_server_id = clients[client_id]['server_id']
+
+        partition_ids[client_server_id].append(client_idx)
 
         if client_server_id == main_server_id:
             server_address = main_server_address
@@ -135,6 +112,37 @@ def registration(
                 client_idx,
                 len(clients)
             )
+
+    # Inform the edge about the main server
+    for edge_id in edges:
+        edge_address = edges[edge_id]['address']
+        server_id = edges[edge_id]['server_id']
+
+        # Inform the edge server about their server
+        if server_id == main_server_id:
+            # Construct the URL to inform the edge about its server
+            edge_url = f'http://{edge_address}/register_server'
+
+            # Send the POST request to the edge to register the server
+            try:
+                edge_res = requests.post(
+                    edge_url,
+                    json={
+                        'id': main_server_id,
+                        'address': main_server_address,
+                        'partition_ids': partition_ids[edge_id],
+                        'num_clients': len(clients)
+                    }
+                )
+
+                # Check if the request was successful
+                if edge_res.status_code == 200:
+                    print(f"Successfully bound edge {edge_address} to server {main_server_address}")
+                else:
+                    print(f"Failed to bind edge {edge_address} to server {main_server_address}")
+            except requests.exceptions.RequestException as e:
+                print(f"Error while trying to bind edge {edge_address} to server {main_server_address}: {e}")
+
 
     print("Connections have been made and ready for training")
 

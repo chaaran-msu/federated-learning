@@ -30,7 +30,10 @@ data_store = {
     'server_address': '',
     'clients': [], # Each client will have it's address
     'current_round_clients': [], # Client Index in 'clients' list
-    'current_round_data': {}, # Parameters for current round
+    'current_round_data': {}, # Parameters for current round,
+    'num_clients': 0,
+    'partition_ids': [],
+    'batch_size': 16,
 }
 
 def create_app():
@@ -43,6 +46,14 @@ def create_app():
         device_id=device_id,
         role='edge'
     )
+
+    # Create results folder
+    results_folder = os.path.join(dirname, f'../results/{architecture}')
+    os.makedirs(results_folder, exist_ok=True)
+
+    # Results file path
+    results_file_path = os.path.join(results_folder, f'{device_id}_edge.txt')
+
 
     # Register with main server
     with app.app_context():
@@ -67,12 +78,11 @@ def create_app():
     def register_server():
         data = request.json
 
-        id = data.get('id', None)
-        address = data.get('address', None)
-
         # Add client information to data store
-        data_store['server_id'] = id
-        data_store['server_address'] = address
+        data_store['server_id'] = data.get('id', None)
+        data_store['server_address'] = data.get('address', None)
+        data_store['partition_ids'] = data.get('partition_ids', None)
+        data_store['num_clients'] = data.get('num_clients', None)
 
         logger.info(f'Server address: {data_store["server_address"]}')
 
@@ -105,6 +115,8 @@ def create_app():
         learning_rate = data.get('learning_rate', None)
         num_epochs = data.get('num_epochs', None)
         parameters = data.get('parameters', None)
+
+        data_store['batch_size'] = batch_size
 
         training_data = {
             'batch_size': batch_size,
@@ -161,7 +173,11 @@ def create_app():
                     data_store['current_round_data'],
                     data_store['server_address'],
                     data_store['id'],
-                    logger
+                    data_store['num_clients'],
+                    data_store['partition_ids'],
+                    data_store['batch_size'],
+                    logger,
+                    results_file_path
                 ]
             )
             thread.start()

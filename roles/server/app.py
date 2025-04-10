@@ -171,7 +171,7 @@ def aggregate_clients():
     return 'OK'
 
 # Stop training
-@app.route('/stop')
+@app.route('/stop', methods=["POST"])
 def stop():
     for id in jobs:
         subprocess.run(['scancel', id])

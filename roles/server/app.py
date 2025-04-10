@@ -36,7 +36,7 @@ elif architecture == 'hierarchical_fl':
 # Obtain the server address
 server_port = get_local_port()
 server_address = get_local_address(server_port)
-device_id = uuid.uuid4()
+device_id = str(uuid.uuid4())
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing

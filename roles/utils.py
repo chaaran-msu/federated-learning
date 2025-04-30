@@ -31,9 +31,8 @@ def submit(
 #SBATCH --constraint={cluster}
 
 source ~/.venv/fl/bin/activate
-cd ../../
-pwd
-srun python {'roles/client/app.py' if role == 'client' else 'roles/edge/app.py'} {device_id} {server_id} {main_server_address} {architecture} {num_edge_client_rounds}"""
+
+srun python {'~/federated_learning/roles/client/app.py' if role == 'client' else '~/federated_learning/roles/edge/app.py'} {device_id} {server_id} {main_server_address} {architecture} {num_edge_client_rounds}"""
 
     filename = f"{device_id}.sh"
     with open(filename, 'w') as file:

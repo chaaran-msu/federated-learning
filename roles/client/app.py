@@ -85,10 +85,10 @@ def create_app():
     def start_training():
         data = request.json
 
-        batch_size = data.get('batch_size', None)
-        learning_rate = data.get('learning_rate', None)
-        num_epochs = data.get('num_epochs', None)
-        parameters = data.get('parameters', None)
+        training_data['batch_size'] = data.get('batch_size', None)
+        training_data['learning_rate'] = data.get('learning_rate', None)
+        training_data['num_epochs'] = data.get('num_epochs', None)
+        training_data['parameters'] = data.get('parameters', None)
 
         logger.info('Starting training in client')
 
@@ -100,10 +100,6 @@ def create_app():
                 data_store['server_address'],
                 data_store['num_clients'],
                 data_store['partition_id'],
-                batch_size,
-                parameters,
-                learning_rate,
-                num_epochs,
                 logger,
                 training_data,
                 results_file_path

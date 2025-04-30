@@ -146,10 +146,6 @@ def train_round_client(
     server_address: str,
     num_clients: int,
     partition_id: int,
-    batch_size: int,
-    parameters: List,
-    learning_rate: float,
-    num_epochs: int,
     logger,
     training_data: dict,
     results_file_path: str
@@ -158,10 +154,10 @@ def train_round_client(
     round_data, computational_latency = train_model(
         num_clients,
         partition_id,
-        batch_size,
-        parameters,
-        learning_rate,
-        num_epochs,
+        training_data['batch_size'],
+        training_data['parameters'],
+        training_data['learning_rate'],
+        training_data['num_epochs'],
         logger
     )
 
@@ -337,6 +333,8 @@ def train_round_server(
 
     # If current round is less than num_rounds, start next round
     if round_num < num_rounds:
+        # TODO - Client and Topology Selection for next round
+
         # Start Training for next round
         start_training_server(
             clients=round_clients,

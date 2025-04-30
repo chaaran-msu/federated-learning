@@ -30,6 +30,12 @@ data_store = {
     'server_address': None,
 }
 
+resource_store = {
+    'cpu_percent': 0,
+    'mem_percent': 0,
+    'avg_training_time': 0
+}
+
 training_data = {
     'round': 0
 }
@@ -102,12 +108,18 @@ def create_app():
                 data_store['partition_id'],
                 logger,
                 training_data,
-                results_file_path
+                results_file_path,
+                resource_store
             ]
         )
         thread.start()
 
         return 'OK'
+
+     # Stop App
+    @app.route("/top", methods=["GET"])
+    def top():
+        return jsonify(resource_store)
 
     # Stop App
     @app.route("/stop", methods=["POST"])

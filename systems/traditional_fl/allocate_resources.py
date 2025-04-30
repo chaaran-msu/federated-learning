@@ -9,18 +9,11 @@ import uuid
 
 from roles.utils import submit
 
+num_devices = 20
+
 architecture = {
     'defaults': {'time': '02:00:00'},
-    'clients': [
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-        {'mem': 1, 'cpu': 1, 'cluster': 'intel18'},
-    ]
+    'clients': [{'mem': 1, 'cpu': 1, 'cluster': 'intel18'} for i in range(num_devices)]
 }
 
 def allocate_resources(

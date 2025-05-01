@@ -34,6 +34,7 @@ start_time = time.time()
 architecture = sys.argv[1]
 num_rounds = int(sys.argv[2])
 num_edge_client_rounds = int(sys.argv[3])
+num_devices = int(sys.argv[4])
 
 if architecture == 'traditional_fl':
     allocate_resources = allocate_resources_traditional_fl
@@ -55,13 +56,13 @@ app = Flask(__name__)
 
 # Create a custom logger
 logger = get_logger(
-    log_dir=os.path.join(dirname, f'../logs/{architecture}_{num_rounds}_{num_edge_client_rounds}'),
+    log_dir=os.path.join(dirname, f'../logs/{architecture}_{num_rounds}_{num_edge_client_rounds}_{num_devices}'),
     device_id=device_id,
     role='server'
 )
 
 # Create results folder
-results_folder = os.path.join(dirname, f'../results/{architecture}_{num_rounds}_{num_edge_client_rounds}')
+results_folder = os.path.join(dirname, f'../results/{architecture}_{num_rounds}_{num_edge_client_rounds}_{num_devices}')
 os.makedirs(results_folder, exist_ok=True)
 
 # Results file path
@@ -90,8 +91,8 @@ resources_data = {
 server_utilization_store = {
     'avg_cpu_percent': 0,
     'peak_cpu_percent': 0,
-    'avg_mem_percent': 0,
-    'peak_mem_percent': 0,
+    'avg_mem_bytes': 0,
+    'peak_mem_bytes': 0,
 }
 
 stop_monitoring_event = threading.Event()

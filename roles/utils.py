@@ -64,8 +64,8 @@ def monitor_cpu_usage(process, stop_event, resource_store, interval=1):
     # Safely compute stats even if empty
     resource_store['avg_cpu_percent'] = sum(cpu_utilization) / len(cpu_utilization) if cpu_utilization else 0.0
     resource_store['peak_cpu_percent'] = max(cpu_utilization, default=0.0)
-    resource_store['avg_mem_percent'] = sum(mem_utilization) / len(mem_utilization) if mem_utilization else 0.0
-    resource_store['peak_mem_percent'] = max(mem_utilization, default=0.0)
+    resource_store['avg_mem_bytes'] = sum(mem_utilization) / (len(mem_utilization)*1024*1024) if mem_utilization else 0.0
+    resource_store['peak_mem_bytes'] = max(mem_utilization, default=0.0) / (1024*1024)
 
 def get_current_time():
     return time.time()

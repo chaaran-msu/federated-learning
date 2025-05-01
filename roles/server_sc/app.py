@@ -168,6 +168,7 @@ def aggregate_clients():
                 server_address,
                 num_rounds,
                 data_store['current_round_data'],
+                data_store['all_clients'],
                 data_store['current_round_clients'],
                 resources_data['num_devices']['clients'],
                 list(range(resources_data['num_devices']['clients'])),

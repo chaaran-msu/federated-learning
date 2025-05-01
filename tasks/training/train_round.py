@@ -409,6 +409,7 @@ def train_round_server(
     main_server_address,
     num_rounds,
     round_data,
+    all_clients,
     round_clients,
     num_clients,
     partition_ids,
@@ -479,7 +480,7 @@ def train_round_server(
             client_topologies = topology_generation_random(
                 main_server_address=main_server_address,
                 main_server_id=main_server_id,
-                clients=round_clients
+                clients=all_clients
             )
 
             round_clients = registration(

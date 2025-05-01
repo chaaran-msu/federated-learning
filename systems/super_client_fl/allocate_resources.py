@@ -15,8 +15,8 @@ def allocate_resources(
     architecture_name,
     num_edge_client_rounds,
     resources_data,
-    num_devices,
     checkpoint_times
+    num_devices
 ):
     checkpoint_times['resource_allocation_start'] = get_current_time()
 

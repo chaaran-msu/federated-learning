@@ -76,6 +76,7 @@ def registration(
     round_num: int,
     registration_times: Dict,
     checkpoint_times: Dict,
+    data_store,
     first_round = False
 ):
     '''
@@ -114,6 +115,8 @@ def registration(
     print("Connections have been made and ready for training")
 
     registration_times[round_num] = get_current_time() - registration_start_time
+
+    data_store['current_round_clients'] = current_round_clients
 
     # Start first round of training
     # Parameters will be initialized randomly

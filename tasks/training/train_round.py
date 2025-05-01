@@ -404,6 +404,7 @@ def train_round_super_client(
         logger.info('Started next round of training')
 
 def train_round_server(
+    data_store,
     main_server_id,
     main_server_address,
     num_rounds,
@@ -484,7 +485,7 @@ def train_round_server(
             round_clients = registration(
                 main_server_id=main_server_id,
                 client_topologies=client_topologies,
-                first_round=False
+                first_round=False, data_store=data_store
             )
         
         # Start Training for next round

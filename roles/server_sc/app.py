@@ -133,7 +133,7 @@ def register():
             clients=data_store['all_clients']
         )
 
-        threading.Thread(target=registration, args=[device_id, client_topologies, data_store['current_round_num'], registration_times, checkpoint_times, True], daemon=True).start()
+        threading.Thread(target=registration, args=[device_id, client_topologies, data_store['current_round_num'], registration_times, checkpoint_times, data_store, True], daemon=True).start()
 
     return 'OK'
 
@@ -163,6 +163,7 @@ def aggregate_clients():
         thread = threading.Thread(
             target=train_round_server,
             args=[
+                data_store,
                 device_id,
                 server_address,
                 num_rounds,

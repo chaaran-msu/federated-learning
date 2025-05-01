@@ -10,21 +10,20 @@ import uuid
 from roles.utils import submit, get_current_time
 import time
 
-num_devices = 2
-
-architecture = {
-    'defaults': {'time': '02:00:00'},
-    'clients': [{'mem': 1, 'cpu': 1, 'cluster': 'intel18'} for i in range(num_devices)]
-}
-
 def allocate_resources(
     main_server_id,
     main_server_address,
     architecture_name,
     num_edge_client_rounds,
     resources_data,
-    checkpoint_times
+    checkpoint_times,
+    num_devices
 ):
+    architecture = {
+        'defaults': {'time': '02:00:00'},
+        'clients': [{'mem': 1, 'cpu': 1, 'cluster': 'intel18'} for i in range(num_devices)]
+    }
+
     checkpoint_times['resource_allocation_start'] = get_current_time()
 
     # Submit jobs to allocate resources

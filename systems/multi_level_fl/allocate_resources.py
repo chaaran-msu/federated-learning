@@ -70,7 +70,8 @@ def allocate_resources(
     main_server_address,
     architecture_name,
     num_edge_client_rounds,
-    resources_data
+    resources_data,
+    num_devices
 ):
     # Submit jobs to allocate resources
     jobs = set()

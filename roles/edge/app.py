@@ -37,6 +37,19 @@ data_store = {
     'batch_size': 16,
 }
 
+def register_with_server():
+    data = {
+        'id': device_id,
+        'address': local_address,
+        'role': 'edge',
+        'server_id': server_id
+    }
+
+    requests.post(
+        f'http://{main_server_address}/register',
+        json=data
+    )
+
 def create_app():
     app = Flask(__name__)
     # CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -54,21 +67,6 @@ def create_app():
 
     # Results file path
     results_file_path = os.path.join(results_folder, f'{device_id}_edge.txt')
-
-
-    # Register with main server
-    with app.app_context():
-        data = {
-            'id': device_id,
-            'address': local_address,
-            'role': 'edge',
-            'server_id': server_id
-        }
-
-        requests.post(
-            f'http://{main_server_address}/register',
-            json=data
-        )
 
     @app.route("/", methods=["GET"])
     def home():
@@ -126,9 +124,6 @@ def create_app():
 
         # Client Selection
         data_store['current_round_clients'] = data_store['clients']
-
-        # Reset data from previous round
-        reset()
 
         # Start Training signal for clients
         logger.info('Starting training from edge')
@@ -208,4 +203,7 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
+
+    # Run them both simultaneously so that the app is ready before the first request
+    threading.Thread(target=register_with_server, daemon=True).start()
     app.run(debug=False, host="0.0.0.0", port=port)  # Run on all interfaces

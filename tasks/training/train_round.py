@@ -298,6 +298,10 @@ def train_round_edge(
         with open(results_file_path, 'a') as file:
             file.write(f'{round_num},{test_data["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]}' + '\n')
 
+    # Reset current training round data
+    requests.post(f"http://{local_address}/reset")
+    logger.info('Reset previous round data')
+
     if round_num % num_edge_client_rounds == 0:
         data['timestamp'] = get_current_time()
 
@@ -306,8 +310,97 @@ def train_round_edge(
 
         logger.info('Sent to aggregation from edge server to main server')
     else:
-        # Reset current training round data
-        requests.post(f"http://{local_address}/reset")
+        # Start next round of training in clients
+        training_data = {
+            'batch_size': batch_size,
+            'learning_rate': learning_rate,
+            'num_epochs': num_epochs,
+            'parameters': aggregated_parameters
+        }
+
+        start_training_edge(
+            round_clients=round_clients,
+            training_data=training_data,
+            logger=logger
+        )
+
+        logger.info('Started next round of training')
+
+def train_round_super_client(
+    local_address,
+    num_edge_client_rounds,
+    round_clients,
+    round_data,
+    server_address,
+    device_id,
+    num_clients,
+    partition_ids,
+    batch_size,
+    learning_rate,
+    num_epochs,
+    round_num,
+    logger,
+    results_file_path
+):
+    aggregation_start_time = time.time()
+
+    # Aggregate parameters from all clients
+    total_num_samples, aggregated_parameters = aggregate(
+        round_data=round_data,
+        algorithm='fed_avg',
+        logger=logger
+    )
+
+    aggregation_end_time = time.time()
+
+    logger.info(f'Aggregated parameters in edge server using {total_num_samples} samples')
+
+    data = {
+        'id': device_id,
+        'num_samples': total_num_samples,
+        'parameters': aggregated_parameters,
+        'round': round_num,
+    }
+
+    if round_num == 30:
+        test_start_time = time.time()
+
+        test_data = test_model(
+            num_clients,
+            aggregated_parameters,
+            partition_ids,
+            batch_size,
+            "edge",
+            logger
+        )
+
+        test_end_time = time.time()
+
+        computational_latency = {
+            'aggregation_time': aggregation_end_time - aggregation_start_time,
+            'testing_time': test_end_time - test_start_time
+        }
+
+        # Save results in text file for analysis
+        with open(results_file_path, 'a') as file:
+            file.write(f'{round_num},{test_data["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]}' + '\n')
+
+    if round_num % num_edge_client_rounds == 0:
+        # Reset both clients and current training round data to get ready for the next topology
+        requests.post(f"http://{local_address}/reset_clients")
+        requests.post(f"http://{local_address}/reset_clients_data")
+        logger.info('Reset clients and previous round data')
+
+        data['timestamp'] = get_current_time()
+
+        # Send parameters up the hierarchy
+        requests.post(f"http://{server_address}/aggregate", json=data)
+
+        logger.info('Sent to aggregation from edge server to main server')
+    else:
+        # Reset only current training round data to get ready for the aggregation
+        requests.post(f"http://{local_address}/reset_clients_data")
+        logger.info('Reset previous round data')
 
         # Start next round of training in clients
         training_data = {

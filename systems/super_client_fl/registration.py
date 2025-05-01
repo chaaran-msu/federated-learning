@@ -45,7 +45,8 @@ def inform_client(
     server_id,
     server_address,
     partition_id,
-    num_clients
+    num_clients,
+    role
 ):
     client_url = f'http://{client_address}/register_server'
 
@@ -57,7 +58,8 @@ def inform_client(
                 'server_id': server_id,
                 'server_address': server_address,
                 'partition_id': partition_id,
-                'num_clients': num_clients
+                'num_clients': num_clients,
+                'role': role
             }
         )
         # Check if the request was successful
@@ -103,7 +105,8 @@ def registration(
             server_id=client['server_id'],
             server_address=client['server_address'],
             partition_id=client['partition_id'],
-            num_clients=len(client_topologies)
+            num_clients=len(client_topologies),
+            role='super_client' if len(client['clients']) > 0 else 'client'
         )
 
     print("Connections have been made and ready for training")

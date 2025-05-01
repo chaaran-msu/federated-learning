@@ -16,13 +16,13 @@ import time
 
 from roles.utils import get_current_time
 
-from traininig.data.create_dataloaders import create_dataloaders_flower, create_dataloaders_flower_multiple_partitions, create_global_test_dataloader
-from traininig.models.baseline import Baseline
-from traininig.utils.parameters import load_serialized_parameters, get_serialized_parameters
-from traininig.utils.train import train
-from traininig.utils.test import test
+from training.data.create_dataloaders import create_dataloaders_flower, create_dataloaders_flower_multiple_partitions, create_global_test_dataloader
+from training.models.baseline import Baseline
+from training.utils.parameters import load_serialized_parameters, get_serialized_parameters
+from training.utils.train import train
+from training.utils.test import test
 from aggregation.aggregate import aggregate
-from traininig.start_training import start_training_server, start_training_edge
+from training.start_training import start_training_server, start_training_edge
 
 # Initialize model
 model = Baseline()

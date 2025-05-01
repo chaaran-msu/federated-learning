@@ -26,7 +26,7 @@ from systems.hierarchical_fl.registration import registration as registration_hi
 from systems.multi_level_fl.registration import registration as registration_multi_level_fl
 
 
-from tasks.traininig.train_round import train_round_server
+from tasks.training.train_round import train_round_server
 
 start_time = time.time()
 

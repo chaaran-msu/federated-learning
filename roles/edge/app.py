@@ -12,8 +12,8 @@ import logging
 
 from roles.utils import get_local_port, get_local_address
 from roles.logging import get_logger
-from tasks.traininig.train_round import train_round_edge
-from tasks.traininig.start_training import start_training_edge
+from tasks.training.train_round import train_round_edge
+from tasks.training.start_training import start_training_edge
 
 port = get_local_port()
 local_address = get_local_address(port)

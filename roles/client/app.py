@@ -11,7 +11,7 @@ import threading
 
 from roles.utils import get_local_port, get_local_address, get_current_time
 from roles.logging import get_logger
-from tasks.traininig.train_round import train_round_client
+from tasks.training.train_round import train_round_client
 
 port = get_local_port()
 local_address = get_local_address(port)

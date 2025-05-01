@@ -7,7 +7,7 @@ sys.path.append(os.path.join(dirname))
 sys.path.append(os.path.join(dirname, '../../'))
 
 import requests
-from tasks.traininig.start_training import start_training_server
+from tasks.training.start_training import start_training_server
 from roles.utils import get_current_time
 
 def registration(

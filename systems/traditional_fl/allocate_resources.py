@@ -10,7 +10,7 @@ import uuid
 from roles.utils import submit, get_current_time
 import time
 
-num_devices = 1
+num_devices = 2
 
 architecture = {
     'defaults': {'time': '02:00:00'},

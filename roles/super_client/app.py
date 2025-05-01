@@ -33,6 +33,7 @@ data_store = {
     'round_num': 0,
     'clients': [], # Client Index in 'clients' list
     'clients_data': {}, # Parameters for current round,
+    'batch_size': 16,
 }
 
 resource_store = {
@@ -124,11 +125,18 @@ def create_app():
     def start_training():
         data = request.json
 
-        training_data['batch_size'] = data.get('batch_size', None)
-        training_data['learning_rate'] = data.get('learning_rate', None)
-        training_data['num_epochs'] = data.get('num_epochs', None)
-        training_data['parameters'] = data.get('parameters', None)
+        data_store['batch_size'] = data.get('batch_size', None)
+        data_store['learning_rate'] = data.get('learning_rate', None)
+        data_store['num_epochs'] = data.get('num_epochs', None)
+        parameters = data.get('parameters', None)
 
+        training_data = {
+            'batch_size': data_store['batch_size'],
+            'learning_rate': data_store['learning_rate'],
+            'num_epochs': data_store['num_epochs'],
+            'parameters': parameters
+        }
+        
         # If there are clients, start training in clients
         if data_store['role'] == 'super_client':
             # Start Training signal for clients

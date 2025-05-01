@@ -57,7 +57,7 @@ results_file_path = os.path.join(results_folder, f'{device_id}_server.txt')
 
 # Sample data storage (in-memory)
 data_store = {
-    'all_clients': {}, # Each client will have it's address
+    'all_clients': [], # Each client will have it's address
     'clients': [],
     'current_round_num': 0,
     'current_round_clients': [], # Client Index in 'clients' list,
@@ -115,13 +115,11 @@ def register():
 
     id = data.get('id', None)
     address = data.get('address', None)
-    role = data.get('role', None)
-    server_id = data.get('server_id', None)
 
-    data_store['all_clients'][id] = {
+    data_store['all_clients'].append({
+        'id': id,
         'address': address,
-        'server_id': server_id
-    }
+    })
 
     logger.info("test:")
     logger.info(data_store['all_clients'])

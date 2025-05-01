@@ -35,6 +35,18 @@ data_store = {
     'clients_data': {}, # Parameters for current round,
 }
 
+resource_store = {
+    'avg_cpu_percent_round': 0,
+    'peak_cpu_percent_round': 0,
+    'avg_cpu_percent': 0,
+    'peak_cpu_percent': 0,
+    'avg_mem_bytes_round': 0,
+    'peak_mem_bytes_round': 0,
+    'avg_mem_bytes': 0,
+    'peak_mem_bytes': 0,
+    'avg_training_time': 0
+}
+
 def register_with_server():
     # Register with the main server
     data = {
@@ -144,7 +156,8 @@ def create_app():
                     data_store['partition_id'],
                     logger,
                     training_data,
-                    results_file_path
+                    results_file_path,
+                    resource_store
                 ]
             )
     

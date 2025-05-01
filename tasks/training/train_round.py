@@ -418,7 +418,8 @@ def train_round_server(
     logger,
     results_file_path,
     checkpoint_times,
-    do_client_selection = False
+    do_client_selection = False,
+    registration_times = {}
 ):
     aggregation_start_time = time.time()
 
@@ -486,7 +487,11 @@ def train_round_server(
             round_clients = registration(
                 main_server_id=main_server_id,
                 client_topologies=client_topologies,
-                first_round=False, data_store=data_store
+                round_num=round_num,
+                registration_times=registration_times,
+                checkpoint_times=checkpoint_times,
+                data_store=data_store,
+                first_round=False, 
             )
         
         # Start Training for next round

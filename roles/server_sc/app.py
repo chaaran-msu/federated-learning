@@ -177,7 +177,8 @@ def aggregate_clients():
                 logger,
                 results_file_path,
                 checkpoint_times,
-                True
+                True,
+                registration_times
             ]
         )
         thread.start()

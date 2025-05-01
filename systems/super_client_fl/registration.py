@@ -88,6 +88,8 @@ def registration(
 
     current_round_clients = []
 
+    print(client_topologies)
+
     for idx, client in enumerate(client_topologies):
         if client['server_id'] != main_server_id:
             # Inform the server about this client

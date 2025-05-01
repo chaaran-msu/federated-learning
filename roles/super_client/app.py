@@ -77,8 +77,8 @@ def create_app():
         data = request.json
 
         # Add client information to data store
-        data_store['server_id'] = data.get('id', None)
-        data_store['server_address'] = data.get('address', None)
+        data_store['server_id'] = data.get('server_id', None)
+        data_store['server_address'] = data.get('server_address', None)
         data_store['partition_id'] = data.get('partition_id', None)
         data_store['num_clients'] = data.get('num_clients', 0)
         data_store['role'] = data.get('role', '')

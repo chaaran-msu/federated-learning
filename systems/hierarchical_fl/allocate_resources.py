@@ -41,11 +41,10 @@ def allocate_resources(
     main_server_id,
     main_server_address,
     architecture_name,
-    num_edge_client_rounds
+    num_edge_client_rounds,
+    resources_data
 ):
     # Submit jobs to allocate resources
-    jobs = set()
-
     num_edges = len(architecture['edges'])
     num_clients = sum(len(edge['clients']) for edge in architecture['edges'])
     t_time = architecture.get('defaults', {}).get('time', '02:00:00')
@@ -57,7 +56,7 @@ def allocate_resources(
         cpu = edge.get('cpu', 1)
         cluster = edge.get('cluster', 'intel18')
 
-        jobs.add(
+        resources_data['jobs'].add(
             submit(
                 device_id=edge_id,
                 server_id=main_server_id,
@@ -80,7 +79,7 @@ def allocate_resources(
             cpu = client.get('cpu', 1)
             cluster = client.get('cluster', 'intel18')
 
-            jobs.add(
+            resources_data['jobs'].add(
                 submit(
                     device_id=client_id,
                     server_id=edge_id,
@@ -97,9 +96,5 @@ def allocate_resources(
 
             print(f"Job submitted for client {client_index+1}")
 
-    num_devices = {
-        'edges': num_edges,
-        'clients': num_clients
-    }
-
-    return jobs, num_devices
+    resources_data['num_devices']['edges'] = num_edges
+    resources_data['num_devices']['clients'] = num_clients

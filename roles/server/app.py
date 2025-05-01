@@ -76,13 +76,13 @@ data_store = {
     'current_round_data': {}
 }
 
-# Allocate resources
-jobs, num_devices = allocate_resources(
-    main_server_id=device_id,
-    main_server_address=server_address,
-    architecture_name=f'{architecture}_{num_rounds}_{num_edge_client_rounds}',
-    num_edge_client_rounds=num_edge_client_rounds
-)
+resources_data = {
+    'jobs': set(),
+    'num_devices': {
+        'clients': 0,
+        'edges': 0
+    }
+}
 
 @app.route("/", methods=["GET"])
 def home():
@@ -122,17 +122,17 @@ def register_client():
     logger.info(data_store['all_clients'])
 
     if architecture == 'traditional_fl':
-        if len(data_store['all_clients']) == num_devices['clients']:
+        if len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
             threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
     elif architecture == 'hierarchical_fl':
-        if len(data_store['all_edges']) == num_devices['edges'] and len(data_store['all_clients']) == num_devices['clients']:
+        if len(data_store['all_edges']) == resources_data['num_devices']['edges'] and len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
             threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
     elif architecture == 'multi_hfl':
-        if len(data_store['all_edges']) == num_devices['edges'] and len(data_store['all_clients']) == num_devices['clients']:
+        if len(data_store['all_edges']) == resources_data['num_devices']['edges'] and len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
             threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
@@ -168,8 +168,8 @@ def aggregate_clients():
                 num_rounds,
                 data_store['current_round_data'],
                 data_store['current_round_clients'],
-                num_devices['clients'],
-                list(range(num_devices['clients'])),
+                resources_data['num_devices']['clients'],
+                list(range(resources_data['num_devices']['clients'])),
                 16,
                 round_num,
                 logger,
@@ -191,7 +191,7 @@ def reset():
 # Stop training
 @app.route('/stop', methods=["POST"])
 def stop():
-    for id in jobs:
+    for id in resources_data['jobs']:
         subprocess.run(['scancel', id])
 
     end_time = time.time()
@@ -201,4 +201,19 @@ def stop():
     return f"Successfully canceled jobs"
 
 if __name__ == "__main__":
+    # Allocate resources
+    thread = threading.Thread(
+        target=allocate_resources,
+        args=[
+            device_id,
+            server_address,
+            f'{architecture}_{num_rounds}_{num_edge_client_rounds}',
+            num_edge_client_rounds,
+            resources_data
+        ],
+        daemon=True
+    )
+    thread.start()
+
+    # Start the server
     app.run(debug=False, host="0.0.0.0", port=server_port)  # Run on all interfaces

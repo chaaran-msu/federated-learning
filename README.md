@@ -89,6 +89,7 @@ python app.py <architecture> <num_rounds> <num_edge_client_rounds>
 # 20 global rounds, 10 local client rounds
 python app.py multi_hfl 20 10
 ```
+---
 
 ## 8 Configuration Files (optional)
 

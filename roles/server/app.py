@@ -161,17 +161,17 @@ def register_client():
         if len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
-            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients'], data_store['current_round_clients'], checkpoint_times, num_devices], daemon=True).start()
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients'], data_store['current_round_clients'], checkpoint_times], daemon=True).start()
     elif architecture == 'hierarchical_fl':
         if len(data_store['all_edges']) == resources_data['num_devices']['edges'] and len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
-            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients'], checkpoint_times, num_devices], daemon=True).start()
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients'], checkpoint_times], daemon=True).start()
     elif architecture == 'multi_hfl':
         if len(data_store['all_edges']) == resources_data['num_devices']['edges'] and len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
-            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients'], checkpoint_times, num_devices], daemon=True).start()
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients'], checkpoint_times], daemon=True).start()
 
     return 'OK'
 
@@ -275,7 +275,8 @@ if __name__ == "__main__":
             f'{architecture}_{num_rounds}_{num_edge_client_rounds}',
             num_edge_client_rounds,
             resources_data,
-            checkpoint_times
+            checkpoint_times,
+            num_devices
         ],
         daemon=True
     )

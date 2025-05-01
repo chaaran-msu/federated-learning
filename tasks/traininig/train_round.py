@@ -87,18 +87,12 @@ def train_model(
     # Serialize model parameters
     serialized_params = get_serialized_parameters(model)
 
-    round_data = {
-        'parameters': serialized_params,
-        'accuracy': accuracy,
-        'num_samples': len(trainloader.dataset)
-    }
+    round_data['parameters'] = serialized_params
+    round_data['accuracy'] = accuracy
+    round_data['num_samples'] = len(trainloader.dataset)
 
-    computational_latency = {
-        'training_time': train_end_time - train_start_time,
-        'testing_time': test_end_time - test_start_time
-    }
-
-    return round_data, computational_latency
+    computational_latency['training_time'] = train_end_time - train_start_time
+    computational_latency['testing_time'] = test_end_time - test_start_time
 
 def test_model(
     num_clients,
@@ -150,7 +144,10 @@ def monitor_cpu_usage(process, training_thread, training_data, resource_store, i
     while training_thread.is_alive():
         arr.append( process.cpu_percent(interval=interval))
 
-    resource_store['cpu_percent'] = (resource_store['cpu_percent'] * training_data['round'] + sum(arr) / len(arr)) / (training_data['round'] + 1)
+    resource_store['avg_cpu_percent_round'] = sum(arr) / len(arr)
+    resource_store['peak_cpu_percent_round'] = max(arr)
+    resource_store['avg_cpu_percent'] = (resource_store['cpu_percent'] * training_data['round'] + sum(arr) / len(arr)) / (training_data['round'] + 1)
+    resource_store['peak_cpu_percent'] = max([resource_store['peak_cpu_percent'], max(arr)])
 
 def train_round_client(
     id: str,
@@ -199,7 +196,6 @@ def train_round_client(
 
     # Update round number
     training_data['round'] += 1
-
 
     # Save results in text file for analysis
     with open(results_file_path, 'a') as file:

@@ -214,7 +214,7 @@ def create_app():
     
     # Reset round training data
     @app.route("/reset_clients", methods=["POST"])
-    def reset():
+    def reset_clients():
         data_store['clients'] = []
         logger.info('Reset clients')
 
@@ -222,7 +222,7 @@ def create_app():
     
     # Reset round training data
     @app.route("/reset_clients_data", methods=["POST"])
-    def reset():
+    def reset_clients_data():
         data_store['clients_data'] = {}
         logger.info('Reset clients data')
 

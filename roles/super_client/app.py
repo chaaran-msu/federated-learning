@@ -40,7 +40,7 @@ def register_with_server():
     data = {
         'id': device_id,
         'address': local_address,
-        'role': 'super_client',
+        'role': 'client',
         'server_id': server_id
     }
 

@@ -22,6 +22,7 @@ from systems.super_client_fl.allocate_resources import allocate_resources
 from systems.super_client_fl.registration import registration
 
 from tasks.training.train_round import train_round_server
+from tasks.selection.topology_generation import topology_generation_random
 
 start_time = time.time()
 
@@ -117,34 +118,24 @@ def register():
     role = data.get('role', None)
     server_id = data.get('server_id', None)
 
-    if server_id == device_id:
-        data_store['clients'].append({
-            'id': id,
-            'address': address,
-            'server_id': server_id
-        })
-
-    # Add client information to data store
-    if role == 'client':
-        data_store['all_clients'][id] = {
-            'address': address,
-            'server_id': server_id
-        }
-    elif role == 'edge':
-        data_store['all_edges'][id] = {
-            'address': address,
-            'server_id': server_id
-        }
+    data_store['all_clients'][id] = {
+        'address': address,
+        'server_id': server_id
+    }
 
     logger.info("test:")
-    logger.info(data_store['all_edges'])
     logger.info(data_store['all_clients'])
+    logger.info(len(data_store['all_clients']))
 
     if len(data_store['all_clients']) == resources_data['num_devices']['clients']:
-        # TODO - Client and Topology Selection for next round
-        data_store['current_round_clients'] = data_store['clients']
+        # Client and Topology Selection for first round
+        client_topologies = topology_generation_random(
+            main_server_id=device_id,
+            main_server_address=server_address,
+            clients=data_store['all_clients']
+        )
 
-        threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients'], data_store['current_round_clients'], data_store['current_round_num'], registration_times, checkpoint_times, True], daemon=True).start()
+        threading.Thread(target=registration, args=[device_id, client_topologies, data_store['current_round_num'], registration_times, checkpoint_times, True], daemon=True).start()
 
     return 'OK'
 

@@ -23,6 +23,13 @@ def submit(
     architecture,
     num_edge_client_rounds
 ):
+    if role == 'client':
+        file = '~/federated-learning/roles/client/app.py'
+    elif role == 'edge':
+        file = '~/federated-learning/roles/edge/app.py'
+    elif role == 'super_client':
+        file = '~/federated-learning/roles/super_client/app.py'
+
     script = f"""#!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --time={time}
@@ -33,7 +40,7 @@ def submit(
 
 source ~/.venv/fl/bin/activate
 
-srun python {'~/federated-learning/roles/client/app.py' if role == 'client' else '~/federated-learning/roles/edge/app.py'} {device_id} {server_id} {main_server_address} {architecture} {num_edge_client_rounds}"""
+srun python {file} {device_id} {server_id} {main_server_address} {architecture} {num_edge_client_rounds}"""
 
     filename = f"{device_id}.sh"
     with open(filename, 'w') as file:

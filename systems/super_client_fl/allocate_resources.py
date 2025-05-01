@@ -41,7 +41,7 @@ def allocate_resources(
                 device_id=device_id,
                 server_id=main_server_id,
                 main_server_address=main_server_address,
-                role='client',
+                role='super_client',
                 time=t_time, 
                 mem=mem, 
                 cpu=cpu, 

@@ -119,7 +119,9 @@ def register_client():
 
     logger.info("test:")
     logger.info(data_store['all_edges'])
+    logger.info(len(data_store['all_edges']))
     logger.info(data_store['all_clients'])
+    logger.info(len(data_store['all_clients']))
 
     if architecture == 'traditional_fl':
         if len(data_store['all_clients']) == resources_data['num_devices']['clients']:

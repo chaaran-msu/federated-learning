@@ -14,7 +14,7 @@ from typing import List
 import requests
 import time
 
-from roles.utils import get_current_time
+from roles.utils import get_current_time, monitor_cpu_usage
 
 from training.data.create_dataloaders import create_dataloaders_flower, create_dataloaders_flower_multiple_partitions, create_global_test_dataloader
 from training.models.baseline import Baseline
@@ -23,6 +23,9 @@ from training.utils.train import train
 from training.utils.test import test
 from aggregation.aggregate import aggregate
 from training.start_training import start_training_server, start_training_edge
+
+from tasks.selection.topology_generation import topology_generation_random
+from systems.super_client_fl.registration import registration
 
 # Initialize model
 model = Baseline()
@@ -141,15 +144,18 @@ def test_model(
 
     return round_data
 
-def monitor_cpu_usage(process, training_thread, training_data, resource_store, interval=1):
-    arr = []
-    while training_thread.is_alive():
-        arr.append( process.cpu_percent(interval=interval))
+def get_complete_cpu_usage_history(resource_utilization, current_round_utilizations, training_data):
+    # Round utilization
+    resource_utilization['avg_cpu_percent_round'] = current_round_utilizations['avg_cpu_percent']
+    resource_utilization['peak_cpu_percent_round'] = current_round_utilizations['peak_cpu_percent']
+    resource_utilization['avg_mem_bytes_round'] = current_round_utilizations['avg_mem_bytes']
+    resource_utilization['peak_mem_bytes_round'] = current_round_utilizations['peak_mem_bytes']
 
-    resource_store['avg_cpu_percent_round'] = sum(arr) / len(arr)
-    resource_store['peak_cpu_percent_round'] = max(arr)
-    resource_store['avg_cpu_percent'] = (resource_store['cpu_percent'] * training_data['round'] + sum(arr) / len(arr)) / (training_data['round'] + 1)
-    resource_store['peak_cpu_percent'] = max([resource_store['peak_cpu_percent'], max(arr)])
+    # overall Utilization
+    resource_utilization['avg_cpu_percent'] = (resource_utilization['avg_cpu_percent'] * training_data['round'] + current_round_utilizations['avg_cpu_percent']) / (training_data['round'] + 1)
+    resource_utilization['avg_mem_bytes'] = (resource_utilization['avg_mem_bytes'] * training_data['round'] + current_round_utilizations['avg_mem_bytes']) / (training_data['round'] + 1)
+    resource_utilization['peak_cpu_percent'] = max(resource_utilization['peak_cpu_percent'], current_round_utilizations['peak_cpu_percent'])
+    resource_utilization['peak_mem_bytes'] = max(resource_utilization['peak_mem_bytes'], current_round_utilizations['peak_mem_bytes'])
 
 def train_round_client(
     id: str,
@@ -159,26 +165,33 @@ def train_round_client(
     logger,
     training_data: dict,
     results_file_path: str,
-    resource_store: dict
+    resource_utilization_store: dict
 ):
     round_data = {}
     computational_latency= {}
-    process = psutil.Process()
+    current_round_resource_utilization = {}
+
+    process = psutil.Process(os.getpid())
 
     training_thread = threading.Thread(
         target=train_model,
         args=(num_clients, partition_id, training_data['batch_size'], training_data['parameters'], training_data['learning_rate'], training_data['num_epochs'], logger, round_data, computational_latency)
     )
 
+    stop_monitor_event = threading.Event()
+
     cpu_monitor_thread = threading.Thread(
         target=monitor_cpu_usage,
-        args=(process, training_thread, training_data, resource_store, 1)
+        args=(process, stop_monitor_event, current_round_resource_utilization)
     )
 
     training_thread.start()
     cpu_monitor_thread.start()
 
     training_thread.join()
+
+    # Stop monitoring
+    stop_monitor_event.set()
     cpu_monitor_thread.join()
 
     # # Train the model
@@ -194,7 +207,10 @@ def train_round_client(
 
     round = training_data['round']
     training_time = computational_latency["training_time"]
-    resource_store['avg_training_time'] = (resource_store['avg_training_time'] * round + training_time) / (round + 1)
+
+    get_complete_cpu_usage_history(resource_utilization_store, current_round_resource_utilization, training_data)
+
+    resource_utilization_store['avg_training_time'] = (resource_utilization_store['avg_training_time'] * round + training_time) / (round + 1)
 
     # Update round number
     training_data['round'] += 1
@@ -209,6 +225,7 @@ def train_round_client(
     round_data['id'] = id
     round_data['round'] = training_data['round']
     round_data['timestamp'] = get_current_time()
+    round_data['resource_utilization'] = resource_utilization_store
 
     # Send data back to server
     requests.post(
@@ -315,7 +332,8 @@ def train_round_server(
     round_num,
     logger,
     results_file_path,
-    checkpoint_times
+    checkpoint_times,
+    do_client_selection = False
 ):
     aggregation_start_time = time.time()
 
@@ -372,8 +390,20 @@ def train_round_server(
 
     # If current round is less than num_rounds, start next round
     if round_num < num_rounds:
-        # TODO - Client and Topology Selection for next round
+        # Client and Topology Selection for next round
+        if do_client_selection:
+            client_topologies = topology_generation_random(
+                main_server_address=main_server_address,
+                main_server_id=main_server_id,
+                clients=round_clients
+            )
 
+            round_clients = registration(
+                main_server_id=main_server_id,
+                client_topologies=client_topologies,
+                first_round=False
+            )
+        
         # Start Training for next round
         start_training_server(
             clients=round_clients,

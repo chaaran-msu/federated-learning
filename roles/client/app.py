@@ -35,7 +35,10 @@ resource_store = {
     'peak_cpu_percent_round': 0,
     'avg_cpu_percent': 0,
     'peak_cpu_percent': 0,
-    'mem_percent': 0,
+    'avg_mem_bytes_round': 0,
+    'peak_mem_bytes_round': 0,
+    'avg_mem_bytes': 0,
+    'peak_mem_bytes': 0,
     'avg_training_time': 0
 }
 

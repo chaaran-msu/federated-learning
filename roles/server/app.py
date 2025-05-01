@@ -13,6 +13,7 @@ import threading
 import uuid
 import time
 import psutil
+from collections import defaultdict
 
 from roles.utils import get_local_address, get_local_port, monitor_cpu_usage, get_current_time
 from roles.logging import get_logger
@@ -118,6 +119,23 @@ checkpoint_times = {
     'training_end': 0,
 }
 
+# Client resource utilization - keyed by round_num
+def get_client_utlization_results(data):
+    sums = defaultdict(float)
+    counts = defaultdict(int)
+
+    for dict_list in data.values():
+        for d in dict_list:
+            for k, v in d.items():
+                sums[k] += v
+                counts[k] += 1
+
+    averaged = {k: sums[k] / counts[k] for k in sums}
+
+    return averaged
+
+client_resource_utilization = defaultdict(list)
+
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "Edge Server API!"})
@@ -189,6 +207,7 @@ def aggregate_clients():
     num_samples = data.get('num_samples', None)
     round_num = int(data.get('round', None))
     timestamp = int(data.get('timestamp', None))
+    resource_utilization = int(data.get('resource_utilization', None))
     
     data_store['current_round_data'][device_id] = {
         'parameters': parameters,
@@ -199,6 +218,11 @@ def aggregate_clients():
     # Add communication latency
     latencies.append(
         request_received_time - timestamp
+    )
+
+    # Add resource utilization
+    client_resource_utilization[round_num].append(
+        resource_utilization
     )
 
     # If all devices have sent the data, aggregate and start next round
@@ -255,6 +279,11 @@ def stop():
     
     training_time = checkpoint_times['training_end'] - checkpoint_times['training_start']
     logger.info(f'Training time: {training_time}')
+
+    # Client Utilization
+    client_utlization_results = get_client_utlization_results(client_resource_utilization)
+    logger.info(f'Client Utilization: {client_resource_utilization}')
+    logger.info(f'Client Utilization Results: {client_utlization_results}')
 
     for id in resources_data['jobs']:
         subprocess.run(['scancel', id])

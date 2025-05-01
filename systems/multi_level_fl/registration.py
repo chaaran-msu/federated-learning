@@ -9,7 +9,7 @@ sys.path.append(os.path.join(dirname, '../../'))
 import requests
 from collections import defaultdict
 
-from tasks.traininig.start_training import start_training_server
+from tasks.training.start_training import start_training_server
 
 def inform_server(
     server_address,

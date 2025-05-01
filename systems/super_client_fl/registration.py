@@ -1,0 +1,115 @@
+import os
+import sys
+
+dirname = os.path.abspath(os.path.dirname(__file__))
+
+sys.path.append(os.path.join(dirname))
+sys.path.append(os.path.join(dirname, '../../'))
+
+import requests
+from collections import defaultdict
+from typing import List, Dict
+
+from tasks.training.start_training import start_training_server
+
+def inform_server(
+    server_address,
+    client_id,
+    client_address
+):
+    # Construct the URL to inform the edge about its client
+    edge_url = f'http://{server_address}/register_client'
+
+    # Send the POST request to the edge to register the client
+    try:
+        edge_res = requests.post(
+            edge_url,
+            json={
+                'id': client_id,
+                'address': client_address
+            }
+        )
+
+        # Check if the request was successful
+        if edge_res.status_code == 200:
+            print(f"Successfully bound client {client_address} to edge {server_address}")
+        else:
+            print(f"Failed to bind client {client_address} to edge {server_address}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error while trying to bind client {client_address} to edge {server_address}: {e}")    
+
+
+def inform_client(
+    client_address,
+    server_id,
+    server_address,
+    partition_id,
+    num_clients
+):
+    client_url = f'http://{client_address}/register_server'
+
+    # Send the POST request to the client to inform it of its assigned edge
+    try:
+        client_res = requests.post(
+            client_url,
+            json={
+                'server_id': server_id,
+                'server_address': server_address,
+                'partition_id': partition_id,
+                'num_clients': num_clients
+            }
+        )
+        # Check if the request was successful
+        if client_res.status_code == 200:
+            print(f"Successfully informed client {client_address} about edge {server_address}")
+        else:
+            print(f"Failed to inform client {client_address} about edge {server_address}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error while trying to inform client {client_address} about edge {server_address}: {e}")
+
+def registration(
+    main_server_id: str,
+    client_topologies: List[Dict],
+    first_round = False
+):
+    '''
+        Arguments:
+            main_server_id (str): Clients for the main server.
+            client_topologies (List[Dict]): Each client will have it's address, server's address and a list of clients.
+    
+    '''
+    current_round_clients = []
+
+    for client in client_topologies:
+        if client['server_id'] != main_server_id:
+            # Inform the server about this client
+            inform_server(
+                server_address=client['server_address'],
+                client_id=client['id'],
+                client_address=client['address'],
+            )
+        else:
+            current_round_clients.append(client)
+
+        # Inform the client about the server
+        inform_client(
+            client_address=client['address'],
+            server_id=client['server_id'],
+            server_address=client['server_address'],
+            partition_id=client['partition_id'],
+            num_clients=len(client_topologies)
+        )
+
+    print("Connections have been made and ready for training")
+
+    # Start first round of training
+    # Parameters will be initialized randomly
+    if first_round:
+        start_training_server(
+            clients=current_round_clients,
+            first_round=True
+        )
+
+        print('Started first round of training')
+    else:
+        return current_round_clients

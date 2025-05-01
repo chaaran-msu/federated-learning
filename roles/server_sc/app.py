@@ -155,6 +155,8 @@ def aggregate_clients():
         'num_samples': num_samples
     }
 
+    print(len(data_store['current_round_data']), len(data_store['current_round_clients']))
+
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
         data_store['current_round_num'] += 1

@@ -7,7 +7,7 @@ sys.path.append(os.path.join(dirname))
 
 import uuid
 
-from roles.utils import submit
+from roles.utils import submit, get_current_time
 
 def allocate_resources(
     main_server_id,
@@ -15,8 +15,11 @@ def allocate_resources(
     architecture_name,
     num_edge_client_rounds,
     resources_data,
-    num_devices
+    num_devices,
+    checkpoint_times
 ):
+    checkpoint_times['resource_allocation_start'] = get_current_time()
+
     architecture = {
         'defaults': {'time': '02:00:00'},
         'clients': [{'mem': 1, 'cpu': 1, 'cluster': 'intel18'} for i in range(num_devices)]
@@ -51,3 +54,5 @@ def allocate_resources(
         print(f"Job submitted for client {client_index+1}")
 
     resources_data['num_devices']['clients'] = num_clients
+
+    checkpoint_times['resource_allocation_end'] = get_current_time()

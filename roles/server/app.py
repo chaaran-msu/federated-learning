@@ -89,6 +89,7 @@ resources_data = {
     }
 }
 
+global_round_num = 0
 
 # Monitor Server thread
 server_utilization_store = {
@@ -233,12 +234,14 @@ def aggregate_clients():
     )
 
     # Add resource utilization
-    client_resource_utilization[round_num].append(
+    client_resource_utilization[global_round_num].append(
         resource_utilization
     )
 
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
+        global_round_num += 1
+
         logger.info('Received parameters from all clients')
         
         # Client Selection in server
@@ -257,7 +260,7 @@ def aggregate_clients():
                 resources_data['num_devices']['clients'],
                 list(range(resources_data['num_devices']['clients'])),
                 16,
-                round_num,
+                global_round_num,
                 logger,
                 results_file_path,
                 checkpoint_times

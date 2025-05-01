@@ -11,9 +11,9 @@ from torch import nn
 import torchvision
 import torchvision.transforms as transforms
 
-from tasks.traininig.models.baseline import Baseline
-from tasks.traininig.utils.train import train
-from tasks.traininig.utils.test import test
+from tasks.training.models.baseline import Baseline
+from tasks.training.utils.train import train
+from tasks.training.utils.test import test
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

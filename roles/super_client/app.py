@@ -63,8 +63,6 @@ def register_with_server():
         json=data
     )
 
-training_data = {}
-
 def create_app():
     app = Flask(__name__)
     # CORS(app)  # Enable Cross-Origin Resource Sharing

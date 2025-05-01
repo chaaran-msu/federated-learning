@@ -47,6 +47,10 @@ resource_store = {
     'avg_training_time': 0
 }
 
+training_data = {
+    'round': 0
+}
+
 def register_with_server():
     # Register with the main server
     data = {

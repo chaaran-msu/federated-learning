@@ -14,6 +14,7 @@ import uuid
 import time
 import psutil
 from collections import defaultdict
+import numpy as np
 
 from roles.utils import get_local_address, get_local_port, monitor_cpu_usage, get_current_time
 from roles.logging import get_logger
@@ -36,6 +37,7 @@ architecture = sys.argv[1]
 num_rounds = int(sys.argv[2])
 num_edge_client_rounds = int(sys.argv[3])
 num_devices = int(sys.argv[4])
+num_clients_per_round = int(sys.argv[5])
 
 if architecture == 'traditional_fl':
     allocate_resources = allocate_resources_traditional_fl
@@ -57,13 +59,13 @@ app = Flask(__name__)
 
 # Create a custom logger
 logger = get_logger(
-    log_dir=os.path.join(dirname, f'../logs/{architecture}_{num_rounds}_{num_edge_client_rounds}_{num_devices}'),
+    log_dir=os.path.join(dirname, f'../logs/{architecture}_{num_rounds}_{num_edge_client_rounds}_{num_devices}_{num_clients_per_round}'),
     device_id=device_id,
     role='server'
 )
 
 # Create results folder
-results_folder = os.path.join(dirname, f'../results/{architecture}_{num_rounds}_{num_edge_client_rounds}_{num_devices}')
+results_folder = os.path.join(dirname, f'../results/{architecture}_{num_rounds}_{num_edge_client_rounds}_{num_devices}_{num_clients_per_round}')
 os.makedirs(results_folder, exist_ok=True)
 
 # Results file path
@@ -136,6 +138,13 @@ def get_client_utlization_results(data):
 
 client_resource_utilization = defaultdict(list)
 
+# Random Client Selection
+def random_client_selection(clients, num_to_select):
+    selected_client_indices = np.random.choice(len(clients), min(len(clients), num_to_select), replace=False)
+    selected_clients = [clients[idx] for idx in selected_client_indices]
+
+    return selected_clients
+
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "Edge Server API!"})
@@ -178,7 +187,10 @@ def register_client():
     if architecture == 'traditional_fl':
         if len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
-            data_store['current_round_clients'] = data_store['clients']
+            data_store['current_round_clients'] = random_client_selection(
+                clients = data_store['clients'], 
+                num_to_select = num_clients_per_round
+            )
             threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients'], data_store['current_round_clients'], checkpoint_times], daemon=True).start()
     elif architecture == 'hierarchical_fl':
         if len(data_store['all_edges']) == resources_data['num_devices']['edges'] and len(data_store['all_clients']) == resources_data['num_devices']['clients']:
@@ -228,6 +240,12 @@ def aggregate_clients():
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
         logger.info('Received parameters from all clients')
+        
+        # Client Selection in server
+        data_store['current_round_clients'] = random_client_selection(
+            clients = data_store['clients'], 
+            num_to_select = num_clients_per_round
+        )
         
         thread = threading.Thread(
             target=train_round_server,

@@ -8,6 +8,7 @@ sys.path.append(os.path.join(dirname))
 import uuid
 
 from roles.utils import submit
+import time
 
 num_devices = 20
 
@@ -50,5 +51,7 @@ def allocate_resources(
         )
 
         print(f"Job submitted for client {client_index+1}")
+
+        time.sleep(2)
 
     resources_data['num_devices']['clients'] = num_clients

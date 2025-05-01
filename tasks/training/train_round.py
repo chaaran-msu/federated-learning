@@ -334,7 +334,6 @@ def train_round_super_client(
     server_address,
     device_id,
     num_clients,
-    partition_ids,
     batch_size,
     learning_rate,
     num_epochs,
@@ -363,27 +362,13 @@ def train_round_super_client(
     }
 
     if round_num == 30:
-        test_start_time = time.time()
-
-        test_data = test_model(
-            num_clients,
-            aggregated_parameters,
-            partition_ids,
-            batch_size,
-            "edge",
-            logger
-        )
-
-        test_end_time = time.time()
-
         computational_latency = {
-            'aggregation_time': aggregation_end_time - aggregation_start_time,
-            'testing_time': test_end_time - test_start_time
+            'aggregation_time': aggregation_end_time - aggregation_start_time
         }
-
+        
         # Save results in text file for analysis
         with open(results_file_path, 'a') as file:
-            file.write(f'{round_num},{test_data["accuracy"]},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]}' + '\n')
+            file.write(f'{round_num},{computational_latency["aggregation_time"]},{computational_latency["testing_time"]}' + '\n')
 
     if round_num % num_edge_client_rounds == 0:
         # Reset both clients and current training round data to get ready for the next topology

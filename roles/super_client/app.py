@@ -44,7 +44,7 @@ resource_store = {
     'peak_mem_bytes_round': 0,
     'avg_mem_bytes': 0,
     'peak_mem_bytes': 0,
-    'avg_training_time': 0
+    'avg_training_time': 0,
 }
 
 training_data = {
@@ -200,7 +200,6 @@ def create_app():
                         data_store['server_address'],
                         data_store['id'],
                         data_store['num_clients'],
-                        data_store['partition_ids'],
                         data_store['batch_size'],
                         data_store['learning_rate'],
                         data_store['num_epochs'],

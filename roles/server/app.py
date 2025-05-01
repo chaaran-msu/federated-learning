@@ -249,10 +249,10 @@ def stop():
     logger.info(f'Average Latency: {sum(latencies)/len(latencies)}')
 
     # Times
-    resource_allocation_time = checkpoint_times['resource_allocation_end'] - checkpoint_times['resource_allocation_end']
+    resource_allocation_time = checkpoint_times['resource_allocation_end'] - checkpoint_times['resource_allocation_start']
     logger.info(f'Resource Allocation time: {resource_allocation_time}')
     
-    training_time = checkpoint_times['training_start'] - checkpoint_times['training_end']
+    training_time = checkpoint_times['training_end'] - checkpoint_times['training_start']
     logger.info(f'Training time: {training_time}')
 
     for id in resources_data['jobs']:

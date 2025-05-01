@@ -252,6 +252,7 @@ def aggregate_clients():
         thread = threading.Thread(
             target=train_round_server,
             args=[
+                device_id,
                 server_address,
                 num_rounds,
                 data_store['current_round_data'],
@@ -286,23 +287,26 @@ def stop():
     # Wait for the thread to stop
     monitor_server_thread.join()
 
-    logger.info(f'Utilization: {server_utilization_store}')
+    try:
+        logger.info(f'Utilization: {server_utilization_store}')
 
-    # Latency metrics
-    logger.info(f'Minimum Latency: {min(latencies)}')
-    logger.info(f'Maximum Latency: {max(latencies)}')
-    logger.info(f'Average Latency: {sum(latencies)/len(latencies)}')
+        # Latency metrics
+        logger.info(f'Minimum Latency: {min(latencies)}')
+        logger.info(f'Maximum Latency: {max(latencies)}')
+        logger.info(f'Average Latency: {sum(latencies)/len(latencies)}')
 
-    # Times
-    resource_allocation_time = checkpoint_times['resource_allocation_end'] - checkpoint_times['resource_allocation_start']
-    logger.info(f'Resource Allocation time: {resource_allocation_time}')
-    
-    training_time = checkpoint_times['training_end'] - checkpoint_times['training_start']
-    logger.info(f'Training time: {training_time}')
+        # Times
+        resource_allocation_time = checkpoint_times['resource_allocation_end'] - checkpoint_times['resource_allocation_start']
+        logger.info(f'Resource Allocation time: {resource_allocation_time}')
+        
+        training_time = checkpoint_times['training_end'] - checkpoint_times['training_start']
+        logger.info(f'Training time: {training_time}')
 
-    # Client Utilization
-    client_utlization_results = get_client_utlization_results(client_resource_utilization)
-    logger.info(f'Client Utilization Results: {client_utlization_results}')
+        # Client Utilization
+        client_utlization_results = get_client_utlization_results(client_resource_utilization)
+        logger.info(f'Client Utilization Results: {client_utlization_results}')
+    except Exception as e:
+        logger.error(e)
 
     for id in resources_data['jobs']:
         subprocess.run(['scancel', id])

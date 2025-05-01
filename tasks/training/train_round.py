@@ -165,7 +165,8 @@ def train_round_client(
     logger,
     training_data: dict,
     results_file_path: str,
-    resource_utilization_store: dict
+    resource_utilization_store: dict,
+    send_to_server = True
 ):
     round_data = {}
     computational_latency= {}
@@ -227,13 +228,16 @@ def train_round_client(
     round_data['timestamp'] = get_current_time()
     round_data['resource_utilization'] = resource_utilization_store
 
-    # Send data back to server
-    requests.post(
-        url=f'http://{server_address}/aggregate',
-        json=round_data
-    )
+    if send_to_server:
+        # Send data back to server
+        requests.post(
+            url=f'http://{server_address}/aggregate',
+            json=round_data
+        )
 
-    logger.info('Sent to edge server for aggregation from client')
+        logger.info('Sent to edge server for aggregation from client')
+    else:
+        return round_data
 
 def train_round_edge(
     local_address,
@@ -322,6 +326,7 @@ def train_round_edge(
         logger.info('Started next round of training')
 
 def train_round_server(
+    main_server_id,
     main_server_address,
     num_rounds,
     round_data,

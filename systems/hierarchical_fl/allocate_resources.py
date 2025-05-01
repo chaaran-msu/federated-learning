@@ -7,7 +7,7 @@ sys.path.append(os.path.join(dirname))
 
 import uuid
 
-from roles.utils import submit
+from roles.utils import submit, get_current_time
 
 architecture = {
     'defaults': {'time': '02:00:00'},
@@ -55,8 +55,11 @@ def allocate_resources(
     architecture_name,
     num_edge_client_rounds,
     resources_data,
-    num_devices
+    num_devices,
+    checkpoint_times
 ):
+    checkpoint_times['resource_allocation_start'] = get_current_time()
+    
     # Submit jobs to allocate resources
     num_edges = len(architecture['edges'])
     num_clients = sum(len(edge['clients']) for edge in architecture['edges'])

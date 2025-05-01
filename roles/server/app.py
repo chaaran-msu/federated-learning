@@ -282,7 +282,6 @@ def stop():
 
     # Client Utilization
     client_utlization_results = get_client_utlization_results(client_resource_utilization)
-    logger.info(f'Client Utilization: {client_resource_utilization}')
     logger.info(f'Client Utilization Results: {client_utlization_results}')
 
     for id in resources_data['jobs']:

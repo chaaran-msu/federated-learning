@@ -88,7 +88,7 @@ def registration(
 
     current_round_clients = []
 
-    for client in client_topologies:
+    for idx, client in enumerate(client_topologies):
         if client['server_id'] != main_server_id:
             # Inform the server about this client
             inform_server(
@@ -104,7 +104,7 @@ def registration(
             client_address=client['address'],
             server_id=client['server_id'],
             server_address=client['server_address'],
-            partition_id=client['partition_id'],
+            partition_id=idx,
             num_clients=len(client_topologies),
             role='super_client' if len(client['clients']) > 0 else 'client'
         )

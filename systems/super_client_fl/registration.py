@@ -11,6 +11,7 @@ from collections import defaultdict
 from typing import List, Dict
 
 from tasks.training.start_training import start_training_server
+from roles.utils import get_current_time
 
 def inform_server(
     server_address,
@@ -70,6 +71,9 @@ def inform_client(
 def registration(
     main_server_id: str,
     client_topologies: List[Dict],
+    round_num: int,
+    registration_times: Dict,
+    checkpoint_times: Dict,
     first_round = False
 ):
     '''
@@ -78,6 +82,8 @@ def registration(
             client_topologies (List[Dict]): Each client will have it's address, server's address and a list of clients.
     
     '''
+    registration_start_time = get_current_time()
+
     current_round_clients = []
 
     for client in client_topologies:
@@ -102,9 +108,13 @@ def registration(
 
     print("Connections have been made and ready for training")
 
+    registration_times[round_num] = get_current_time() - registration_start_time
+
     # Start first round of training
     # Parameters will be initialized randomly
     if first_round:
+        checkpoint_times['training_start'] = get_current_time()
+        
         start_training_server(
             clients=current_round_clients,
             first_round=True

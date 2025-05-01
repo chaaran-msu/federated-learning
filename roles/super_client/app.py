@@ -35,7 +35,6 @@ data_store = {
     'clients_data': {}, # Parameters for current round,
 }
 
-
 def register_with_server():
     # Register with the main server
     data = {
@@ -68,14 +67,14 @@ def create_app():
     os.makedirs(results_folder, exist_ok=True)
 
     # Results file path
-    results_file_path = os.path.join(results_folder, f'{device_id}_super_client.txt')
+    results_file_path = os.path.join(results_folder, f'{device_id}_client.txt')
 
     # Register with main server
     with app.app_context():
         data = {
             'id': device_id,
             'address': local_address,
-            'role': 'super_client',
+            'role': 'client',
             'server_id': server_id
         }
 

@@ -54,7 +54,7 @@ def monitor_cpu_usage(process, stop_event, resource_store, interval=1):
 
     while not stop_event.is_set():
         cpu = process.cpu_percent(interval=None)  # Instant (non-blocking) usage since last call
-        mem = process.memory_percent()
+        mem = process.memory_info().rss
 
         cpu_utilization.append(cpu)
         mem_utilization.append(mem)

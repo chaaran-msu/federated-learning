@@ -8,12 +8,14 @@ sys.path.append(os.path.join(dirname, '../../'))
 
 import requests
 from tasks.traininig.start_training import start_training_server
+from roles.utils import get_current_time
 
 def registration(
     server_id,
     server_address,
     clients,
-    current_round_clients
+    current_round_clients,
+    checkpoint_times
 ):
     for client_idx, client_id in enumerate(clients):
         client_address = clients[client_id]['address']
@@ -41,6 +43,9 @@ def registration(
             print(f"Error while trying to inform client {client_address} about server: {e}")
 
     print("Connections have been made and ready for training")
+
+    checkpoint_times['resource_allocation_end'] = get_current_time()
+    checkpoint_times['training_start'] = get_current_time()
 
     # Start first round of training
     # Parameters will be initialized randomly

@@ -12,8 +12,9 @@ import subprocess
 import threading
 import uuid
 import time
+import psutil
 
-from roles.utils import get_local_address, get_local_port
+from roles.utils import get_local_address, get_local_port, monitor_cpu_usage, get_current_time
 from roles.logging import get_logger
 
 from systems.traditional_fl.allocate_resources import allocate_resources as allocate_resources_traditional_fl
@@ -84,6 +85,38 @@ resources_data = {
     }
 }
 
+
+# Monitor Server thread
+server_utilization_store = {
+    'avg_cpu_percent': 0,
+    'peak_cpu_percent': 0,
+    'avg_mem_percent': 0,
+    'peak_mem_percent': 0,
+}
+
+stop_monitoring_event = threading.Event()
+
+monitor_server_thread = threading.Thread(
+    target=monitor_cpu_usage,
+    args=[
+        psutil.Process(os.getpid()), 
+        stop_monitoring_event, 
+        server_utilization_store
+    ],
+    daemon=True
+)
+
+# Communication Latencies
+latencies = []
+
+# Checkpoint Times
+checkpoint_times = {
+    'resource_allocation_start': 0,
+    'resource_allocation_end': 0,
+    'training_start': 0,
+    'training_end': 0,
+}
+
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "Edge Server API!"})
@@ -127,23 +160,25 @@ def register_client():
         if len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
-            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_clients'], data_store['current_round_clients'], checkpoint_times], daemon=True).start()
     elif architecture == 'hierarchical_fl':
         if len(data_store['all_edges']) == resources_data['num_devices']['edges'] and len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
-            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients'], checkpoint_times], daemon=True).start()
     elif architecture == 'multi_hfl':
         if len(data_store['all_edges']) == resources_data['num_devices']['edges'] and len(data_store['all_clients']) == resources_data['num_devices']['clients']:
             # Client Selection in server
             data_store['current_round_clients'] = data_store['clients']
-            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients']], daemon=True).start()
+            threading.Thread(target=registration, args=[device_id, server_address, data_store['all_edges'], data_store['all_clients'], data_store['current_round_clients'], checkpoint_times], daemon=True).start()
 
     return 'OK'
 
 # Aggregation
 @app.route("/aggregate", methods=["POST"])
 def aggregate_clients():
+    request_received_time = get_current_time()
+
     data = request.json
 
     # Add model parameters to data store
@@ -152,12 +187,18 @@ def aggregate_clients():
     accuracy = data.get('accuracy', None)
     num_samples = data.get('num_samples', None)
     round_num = int(data.get('round', None))
+    timestamp = int(data.get('timestamp', None))
     
     data_store['current_round_data'][device_id] = {
         'parameters': parameters,
         'accuracy': accuracy,
         'num_samples': num_samples
     }
+
+    # Add communication latency
+    latencies.append(
+        request_received_time - timestamp
+    )
 
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
@@ -175,7 +216,8 @@ def aggregate_clients():
                 16,
                 round_num,
                 logger,
-                results_file_path
+                results_file_path,
+                checkpoint_times
             ]
         )
         thread.start()
@@ -193,6 +235,26 @@ def reset():
 # Stop training
 @app.route('/stop', methods=["POST"])
 def stop():
+    # Set the stop event for monitoring server
+    stop_monitoring_event.set()
+    
+    # Wait for the thread to stop
+    monitor_server_thread.join()
+
+    logger.info(f'Utilization: {server_utilization_store}')
+
+    # Latency metrics
+    logger.info(f'Minimum Latency: {min(latencies)}')
+    logger.info(f'Maximum Latency: {max(latencies)}')
+    logger.info(f'Average Latency: {sum(latencies)/len(latencies)}')
+
+    # Times
+    resource_allocation_time = checkpoint_times['resource_allocation_end'] - checkpoint_times['resource_allocation_end']
+    logger.info(f'Resource Allocation time: {resource_allocation_time}')
+    
+    training_time = checkpoint_times['training_start'] - checkpoint_times['training_end']
+    logger.info(f'Training time: {training_time}')
+
     for id in resources_data['jobs']:
         subprocess.run(['scancel', id])
 
@@ -204,18 +266,22 @@ def stop():
 
 if __name__ == "__main__":
     # Allocate resources
-    thread = threading.Thread(
+    allocate_resources_thread = threading.Thread(
         target=allocate_resources,
         args=[
             device_id,
             server_address,
             f'{architecture}_{num_rounds}_{num_edge_client_rounds}',
             num_edge_client_rounds,
-            resources_data
+            resources_data,
+            checkpoint_times
         ],
         daemon=True
     )
-    thread.start()
+    allocate_resources_thread.start()
+
+    # Start monitor server thread
+    monitor_server_thread.start()
 
     # Start the server
     app.run(debug=False, host="0.0.0.0", port=server_port)  # Run on all interfaces

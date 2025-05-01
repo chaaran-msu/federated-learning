@@ -9,7 +9,7 @@ from flask import Flask, request, jsonify
 import requests
 import threading
 
-from roles.utils import get_local_port, get_local_address
+from roles.utils import get_local_port, get_local_address, get_current_time
 from roles.logging import get_logger
 from tasks.traininig.train_round import train_round_client
 

@@ -9,7 +9,7 @@ sys.path.append(os.path.join(dirname, '../'))
 import numpy as np
 
 from strategies.fed_avg import FedeartedAveraging
-from traininig.utils.parameters import deserialize_parameters, serialize_parameters
+from training.utils.parameters import deserialize_parameters, serialize_parameters
 
 # Initialize the strategies
 fed_avg = FedeartedAveraging()

@@ -8,8 +8,8 @@ sys.path.append(os.path.join(dirname, '../../'))
 
 import requests
 
-from tasks.traininig.models.baseline import Baseline
-from tasks.traininig.utils.parameters import get_serialized_parameters
+from tasks.training.models.baseline import Baseline
+from tasks.training.utils.parameters import get_serialized_parameters
 
 def start_training_server(
     clients,

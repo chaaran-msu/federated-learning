@@ -43,6 +43,20 @@ training_data = {
     'round': 0
 }
 
+def register_with_server():
+    # Register with the main server
+    data = {
+        'id': device_id,
+        'address': local_address,
+        'role': 'client',
+        'server_id': server_id
+    }
+
+    requests.post(
+        f'http://{main_server_address}/register',
+        json=data
+    )
+
 def create_app():
     app = Flask(__name__)
     # CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -59,20 +73,6 @@ def create_app():
 
     # Results file path
     results_file_path = os.path.join(results_folder, f'{device_id}_client.txt')
-
-    with app.app_context():
-        # Register with the main server
-        data = {
-            'id': device_id,
-            'address': local_address,
-            'role': 'client',
-            'server_id': server_id
-        }
-
-        requests.post(
-            f'http://{main_server_address}/register',
-            json=data
-        )
 
     @app.route("/", methods=["GET"])
     def home():
@@ -134,4 +134,7 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
+
+    # Run them both simultaneously so that the app is ready before the first request
+    threading.Thread(target=register_with_server, daemon=True).start()
     app.run(debug=False, host="0.0.0.0", port=port)  # Run on all interfaces

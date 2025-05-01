@@ -233,9 +233,10 @@ def aggregate_clients():
     )
 
     # Add resource utilization
-    client_resource_utilization[data_store['current_round_num']].append(
-        resource_utilization
-    )
+    if resource_utilization != None:
+        client_resource_utilization[data_store['current_round_num']].append(
+            resource_utilization
+        )
 
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):

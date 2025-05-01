@@ -206,8 +206,8 @@ def aggregate_clients():
     accuracy = data.get('accuracy', None)
     num_samples = data.get('num_samples', None)
     round_num = int(data.get('round', None))
-    timestamp = int(data.get('timestamp', None))
-    resource_utilization = int(data.get('resource_utilization', None))
+    timestamp = data.get('timestamp', None)
+    resource_utilization = data.get('resource_utilization', None)
     
     data_store['current_round_data'][device_id] = {
         'parameters': parameters,

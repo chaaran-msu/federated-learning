@@ -484,7 +484,7 @@ def train_round_server(
                 clients=all_clients
             )
 
-            round_clients = registration(
+            data_store['current_round_clients'] = registration(
                 main_server_id=main_server_id,
                 client_topologies=client_topologies,
                 round_num=round_num,
@@ -496,7 +496,7 @@ def train_round_server(
         
         # Start Training for next round
         start_training_server(
-            clients=round_clients,
+            clients=data_store['current_round_clients'],
             parameters=aggregated_parameters
         )
 

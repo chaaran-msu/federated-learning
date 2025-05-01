@@ -30,6 +30,7 @@ architecture = sys.argv[1]
 num_rounds = int(sys.argv[2])
 num_edge_client_rounds = int(sys.argv[3])
 num_devices = int(sys.argv[4])
+num_edge_client_rounds = int(sys.argv[5])
 
 # Obtain the server address
 server_port = get_local_port()

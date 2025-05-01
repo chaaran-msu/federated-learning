@@ -90,10 +90,21 @@ python app.py <architecture> <num_rounds> <num_edge_client_rounds>
 python app.py multi_hfl 20 10
 ```
 
+## 8 Configuration Files (optional)
+
+Resource-allocation defaults (nodes, CPU cores, memory, GPU constraints, etc.) are centralized in Python scripts that live next to each FL topology. You can edit the one that matches the **architecture** you intend to run before launching jobs.
+
+| Topology package | Config script path |
+|------------------|--------------------|
+| Traditional FL   | `systems/traditional_fl/allocate_resources.py` |
+| Hierarchical FL  | `systems/hierarchical_fl/allocate_resources.py` |
+| Multi-Level HFL  | `systems/multi_level_fl/allocate_resources.py` |
+
+These scripts expose dictionaries and helper functions consumed by both the SLURM wrappers and the launcher utilities, so any parameter you tweak here—node counts, cpu counts, memory sizing, partition constraints, etc.—will propagate automatically.
 
 ---
 
-## 8  Deactivating and cleaning up
+## 9  Deactivating and cleaning up
 ```bash
 deactivate           # Leave the virtualenv
 exit                 # Quit the dev node

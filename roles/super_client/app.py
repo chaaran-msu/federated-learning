@@ -125,18 +125,17 @@ def create_app():
     def start_training():
         data = request.json
 
-        data_store['batch_size'] = data.get('batch_size', None)
-        data_store['learning_rate'] = data.get('learning_rate', None)
-        data_store['num_epochs'] = data.get('num_epochs', None)
-        parameters = data.get('parameters', None)
+        training_data['batch_size'] = data.get('batch_size', None)
+        training_data['learning_rate'] = data.get('learning_rate', None)
+        training_data['num_epochs'] = data.get('num_epochs', None)
+        training_data['parameters'] = data.get('parameters', None)
 
-        training_data = {
-            'batch_size': data_store['batch_size'],
-            'learning_rate': data_store['learning_rate'],
-            'num_epochs': data_store['num_epochs'],
-            'parameters': parameters
-        }
-        
+        data_store['batch_size'] = training_data['batch_size']
+        data_store['learning_rate'] = training_data['learning_rate']
+        data_store['num_epochs'] = training_data['num_epochs']
+        data_store['parameters'] = training_data['parameters']
+
+
         # If there are clients, start training in clients
         if data_store['role'] == 'super_client':
             # Start Training signal for clients

@@ -67,20 +67,6 @@ def create_app():
     # Results file path
     results_file_path = os.path.join(results_folder, f'{device_id}_client.txt')
 
-    # Register with main server
-    with app.app_context():
-        data = {
-            'id': device_id,
-            'address': local_address,
-            'role': 'client',
-            'server_id': server_id
-        }
-
-        requests.post(
-            f'http://{main_server_address}/register',
-            json=data
-        )
-
     @app.route("/", methods=["GET"])
     def home():
         return jsonify({"message": "Super Client API!"})

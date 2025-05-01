@@ -10,6 +10,7 @@ import requests
 from collections import defaultdict
 
 from tasks.training.start_training import start_training_server
+from roles.utils import get_current_time
 
 def inform_server(
     server_address,
@@ -71,7 +72,8 @@ def registration(
     main_server_address,
     edges, 
     clients,
-    current_round_clients
+    current_round_clients,
+    checkpoint_times
 ):
     partition_ids = defaultdict(list)
 
@@ -171,8 +173,12 @@ def registration(
 
     print("Connections have been made and ready for training")
 
+    checkpoint_times['resource_allocation_end'] = get_current_time()
+
     # Start first round of training
     # Parameters will be initialized randomly
+    checkpoint_times['training_start'] = get_current_time()
+
     start_training_server(
         clients=current_round_clients,
         first_round=True

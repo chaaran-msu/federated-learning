@@ -479,8 +479,8 @@ def train_round_server(
         # Client and Topology Selection for next round
         if do_client_selection:
             client_topologies = topology_generation_random(
-                main_server_address=main_server_address,
                 main_server_id=main_server_id,
+                main_server_address=main_server_address,
                 clients=all_clients
             )
 

@@ -36,7 +36,7 @@ num_clients_per_round = int(sys.argv[5])
 # Obtain the server address
 server_port = get_local_port()
 server_address = get_local_address(server_port)
-device_id = str(uuid.uuid4())
+server_id = str(uuid.uuid4())
 
 app = Flask(__name__)
 # CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -44,7 +44,7 @@ app = Flask(__name__)
 # Create a custom logger
 logger = get_logger(
     log_dir=os.path.join(dirname, f'../logs/{architecture}_{num_rounds}_{num_edge_client_rounds}'),
-    device_id=device_id,
+    device_id=server_id,
     role='server'
 )
 
@@ -53,7 +53,7 @@ results_folder = os.path.join(dirname, f'../results/{architecture}_{num_rounds}_
 os.makedirs(results_folder, exist_ok=True)
 
 # Results file path
-results_file_path = os.path.join(results_folder, f'{device_id}_server.txt')
+results_file_path = os.path.join(results_folder, f'{server_id}_server.txt')
 
 # Sample data storage (in-memory)
 data_store = {
@@ -128,12 +128,12 @@ def register():
     if len(data_store['all_clients']) == resources_data['num_devices']['clients']:
         # Client and Topology Selection for first round
         client_topologies = topology_generation_random(
-            main_server_id=device_id,
+            main_server_id=server_id,
             main_server_address=server_address,
             clients=data_store['all_clients']
         )
 
-        threading.Thread(target=registration, args=[device_id, client_topologies, data_store['current_round_num'], registration_times, checkpoint_times, data_store, True], daemon=True).start()
+        threading.Thread(target=registration, args=[server_id, client_topologies, data_store['current_round_num'], registration_times, checkpoint_times, data_store, True], daemon=True).start()
 
     return 'OK'
 
@@ -143,13 +143,13 @@ def aggregate_clients():
     data = request.json
 
     # Add model parameters to data store
-    device_id = data.get('id', None)
+    client_id = data.get('id', None)
     parameters = data.get('parameters', None)
     accuracy = data.get('accuracy', None)
     num_samples = data.get('num_samples', None)
     round_num = int(data.get('round', None))
     
-    data_store['current_round_data'][device_id] = {
+    data_store['current_round_data'][client_id] = {
         'parameters': parameters,
         'accuracy': accuracy,
         'num_samples': num_samples
@@ -166,7 +166,7 @@ def aggregate_clients():
             target=train_round_server,
             args=[
                 data_store,
-                device_id,
+                server_id,
                 server_address,
                 num_rounds,
                 data_store['current_round_data'],
@@ -235,7 +235,7 @@ if __name__ == "__main__":
     allocate_resources_thread = threading.Thread(
         target=allocate_resources,
         args=[
-            device_id,
+            server_id,
             server_address,
             f'{architecture}_{num_rounds}_{num_edge_client_rounds}',
             num_edge_client_rounds,

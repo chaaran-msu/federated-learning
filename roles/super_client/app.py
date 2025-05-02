@@ -169,6 +169,7 @@ def create_app():
                     training_data,
                     results_file_path,
                     resource_store,
+                    True,
                     False
                 ]
             )

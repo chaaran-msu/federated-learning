@@ -167,7 +167,7 @@ def aggregate_clients():
 
     # If all devices have sent the data, aggregate and start next round
     if len(data_store['current_round_data']) == len(data_store['current_round_clients']):
-        data_store['current_round_num'] += 1
+        data_store['current_round_num'] = round_num + 1
         logger.info('Received parameters from all clients')
         
         thread = threading.Thread(

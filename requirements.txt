@@ -3,4 +3,4 @@ torch
 flwr
 flwr-datasets
 Flask
-torchvision
+torchvision  

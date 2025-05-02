@@ -118,13 +118,15 @@ def registration(
 
     data_store['current_round_clients'] = current_round_clients
 
+    print(data_store['current_round_clients'])
+
     # Start first round of training
     # Parameters will be initialized randomly
     if first_round:
         checkpoint_times['training_start'] = get_current_time()
         
         start_training_server(
-            clients=current_round_clients,
+            clients=data_store['current_round_clients'],
             first_round=True
         )
 

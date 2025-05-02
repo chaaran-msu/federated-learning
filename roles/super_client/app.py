@@ -135,6 +135,8 @@ def create_app():
         data_store['num_epochs'] = training_data['num_epochs']
         data_store['parameters'] = training_data['parameters']
 
+        # Increment round_num
+        training_data['round'] += 1
 
         # If there are clients, start training in clients
         if data_store['role'] == 'super_client':
@@ -210,7 +212,7 @@ def create_app():
                         data_store['batch_size'],
                         data_store['learning_rate'],
                         data_store['num_epochs'],
-                        round_num,
+                        training_data['round'],
                         logger,
                         results_file_path
                     ]

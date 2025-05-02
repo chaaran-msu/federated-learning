@@ -72,7 +72,7 @@ def create_app():
     logger = get_logger(
         log_dir=os.path.join(dirname, f'../logs/{architecture}'),
         device_id=device_id,
-        role='edge'
+        role='super_client'
     )
 
     # Create results folder

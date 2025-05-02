@@ -403,6 +403,8 @@ def train_round_super_client(
 
         logger.info('Started next round of training')
 
+    logger.info(f'{round_num}, {num_edge_client_rounds}')
+
 def train_round_server(
     data_store,
     main_server_id,

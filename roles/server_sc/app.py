@@ -15,7 +15,7 @@ import time
 import psutil
 from collections import defaultdict
 
-from roles.utils import get_local_address, get_local_port, monitor_cpu_usage
+from roles.utils import get_local_address, get_local_port, monitor_cpu_usage, get_current_time
 from roles.logging import get_logger
 
 from systems.super_client_fl.allocate_resources import allocate_resources
@@ -140,6 +140,7 @@ def register():
 # Aggregation
 @app.route("/aggregate", methods=["POST"])
 def aggregate_clients():
+    request_received_time = get_current_time()
     data = request.json
 
     # Add model parameters to data store
@@ -148,12 +149,19 @@ def aggregate_clients():
     accuracy = data.get('accuracy', None)
     num_samples = data.get('num_samples', None)
     round_num = int(data.get('round', None))
+    timestamp = data.get('timestamp', None)
+    resource_utilization = data.get('resource_utilization', None)
     
     data_store['current_round_data'][client_id] = {
         'parameters': parameters,
         'accuracy': accuracy,
         'num_samples': num_samples
     }
+
+    # Add communication latency
+    latencies.append(
+        request_received_time - timestamp
+    )
 
     print(len(data_store['current_round_data']), len(data_store['current_round_clients']))
 

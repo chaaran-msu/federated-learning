@@ -166,7 +166,8 @@ def train_round_client(
     training_data: dict,
     results_file_path: str,
     resource_utilization_store: dict,
-    send_to_server = True
+    send_to_server = True,
+    update_round = True
 ):
     round_data = {}
     computational_latency= {}
@@ -214,7 +215,8 @@ def train_round_client(
     resource_utilization_store['avg_training_time'] = (resource_utilization_store['avg_training_time'] * round + training_time) / (round + 1)
 
     # Update round number
-    training_data['round'] += 1
+    if update_round:
+        training_data['round'] += 1
 
     # Save results in text file for analysis
     with open(results_file_path, 'a') as file:

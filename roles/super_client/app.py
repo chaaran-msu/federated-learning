@@ -168,7 +168,8 @@ def create_app():
                     logger,
                     training_data,
                     results_file_path,
-                    resource_store
+                    resource_store,
+                    False
                 ]
             )
     

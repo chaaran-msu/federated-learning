@@ -10,7 +10,7 @@ def topology_generation_random(
 
     num_clients = {
         'first_level': 2,
-        'second_level': 2
+        'second_level': 4
     }
 
     clients_first_level = list(np.random.choice(client_ids, num_clients['first_level'], replace=False))

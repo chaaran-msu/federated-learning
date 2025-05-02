@@ -112,14 +112,8 @@ These scripts expose dictionaries and helper functions consumed by both the SLUR
 ## 9 Running the training for super client architecture
 ```bash
 cd federated-learning/roles/server_sc
-python app.py <architecture> <num_rounds> <num_edge_client_rounds>
+python app.py
 ```
-
-| Positional arg               | Description |
-|------------------------------|-------------|
-| `<architecture>`             | FL topology to deploy (see table below) |
-| `<num_rounds>`               | Number of **global** aggregation rounds |
-| `<num_edge_client_rounds>`   | Number of **local** rounds per edge‑client block |
 
 ## 10  Deactivating and cleaning up
 ```bash

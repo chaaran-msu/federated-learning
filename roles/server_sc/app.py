@@ -27,9 +27,9 @@ from tasks.selection.topology_generation import topology_generation_random
 start_time = time.time()
 
 # Set system architecture
-architecture = sys.argv[1]
-num_rounds = int(sys.argv[2])
-num_edge_client_rounds = int(sys.argv[3])
+architecture = 'super_client'
+num_rounds = 30
+num_edge_client_rounds = 1
 num_devices = 20
 
 # Obtain the server address

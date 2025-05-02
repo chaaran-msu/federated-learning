@@ -67,7 +67,7 @@ pip install -r requirements.txt   # re‑run whenever requirements.txt changes
 ## 6  Start the FL server
 ```bash
 cd federated-learning/roles/server
-python app.py <architecture> <num_rounds> <num_edge_client_rounds>
+python app.py <architecture> <num_rounds> <num_edge_client_rounds> <num_clients> <num_clients_per round>
 ```
 
 | Positional arg               | Description |
@@ -75,6 +75,10 @@ python app.py <architecture> <num_rounds> <num_edge_client_rounds>
 | `<architecture>`             | FL topology to deploy (see table below) |
 | `<num_rounds>`               | Number of **global** aggregation rounds |
 | `<num_edge_client_rounds>`   | Number of **local** rounds per edge‑client block |
+| `<num_clients>`   | Number of clients participating in training |
+| `<num_clients_per round>`   | Number of clients participating in training in a round |
+
+The last two options are available for only **traditional_fl** architecture. 
 
 ### Supported architectures
 
@@ -105,7 +109,19 @@ These scripts expose dictionaries and helper functions consumed by both the SLUR
 
 ---
 
-## 9  Deactivating and cleaning up
+## 9 Running the training for super client architecture
+```bash
+cd federated-learning/roles/server_sc
+python app.py <architecture> <num_rounds> <num_edge_client_rounds>
+```
+
+| Positional arg               | Description |
+|------------------------------|-------------|
+| `<architecture>`             | FL topology to deploy (see table below) |
+| `<num_rounds>`               | Number of **global** aggregation rounds |
+| `<num_edge_client_rounds>`   | Number of **local** rounds per edge‑client block |
+
+## 10  Deactivating and cleaning up
 ```bash
 deactivate           # Leave the virtualenv
 exit                 # Quit the dev node
